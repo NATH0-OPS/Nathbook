@@ -20,7 +20,7 @@ button{border:0;border-radius:8px;padding:11px 16px;background:var(--navy);color
 .admin-wrap{max-width:900px;margin:0 auto}.admin-actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
 form{display:grid;gap:12px}label{display:grid;gap:6px;font-weight:bold;font-size:14px}input,textarea{width:100%;padding:11px;border:1px solid #ccc;border-radius:8px;font:inherit;background:white}textarea{min-height:95px;resize:vertical}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.check{display:flex;align-items:center;gap:9px}.check input{width:auto}
-.hidden{display:none!important}.admin-book{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eee}.admin-book small{display:block;color:#666;margin-top:5px}.admin-book-actions{display:flex;gap:8px;flex-wrap:wrap}
+.hidden{display:none!important}.admin-book{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eee}.admin-book small{display:block;color:#666;margin-top:5px}.admin-book-actions{display:flex;gap:8px;flex-wrap:wrap}.pack-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;padding:12px;border:1px solid #ddd;border-radius:8px}.pack-choice{display:flex;align-items:center;gap:8px;font-weight:normal}.pack-choice input{width:auto}.pack-card{background:white;border-radius:14px;padding:20px;box-shadow:0 3px 16px #0000000d}.pack-card ul{padding-left:20px;color:#555}
 footer{background:var(--navy);color:white;text-align:center;padding:25px;margin-top:40px}
 @media(max-width:600px){.row{grid-template-columns:1fr}.admin-book{align-items:flex-start;flex-direction:column}}
 </style>
@@ -28,10 +28,10 @@ footer{background:var(--navy);color:white;text-align:center;padding:25px;margin-
 <body>
 <header><h1>NATHBOOK</h1><nav><a href="#accueil">Accueil</a><a href="#boutique">Boutique</a><a href="#administration">Administration</a></nav></header>
 <section class="hero" id="accueil"><h2>Bienvenue chez NATHBOOK</h2><p>Des ebooks pour apprendre, progresser et s'inspirer.</p></section>
-<section id="boutique"><h2 class="section-title">Notre boutique</h2><p class="intro">Découvrez nos livres numériques.</p><div id="status" class="status">Connexion à la boutique en cours...</div><div class="books" id="books"></div></section>
+<section id="boutique"><h2 class="section-title">Notre boutique</h2><p class="intro">Découvrez nos livres numériques.</p><div id="status" class="status">Connexion à la boutique en cours...</div><div class="books" id="books"></div><h2 class="section-title" style="margin-top:48px">Nos packs</h2><p class="intro">Plusieurs ebooks réunis dans une même offre.</p><div class="books" id="packs"></div></section>
 <section id="administration"><div class="admin-wrap"><h2 class="section-title">Espace administration</h2><p class="intro">Connecte-toi avec le compte administrateur NATHBOOK.</p>
 <div id="authPanel" class="panel"><form id="loginForm"><label>Adresse e-mail<input id="email" type="email" autocomplete="username" required></label><label>Mot de passe<input id="password" type="password" autocomplete="current-password" required></label><button type="submit">Se connecter</button></form><div id="authMessage" class="status hidden"></div></div>
-<div id="adminPanel" class="panel hidden"><p id="adminWelcome"></p><div class="admin-actions"><button id="newBookBtn">Ajouter un ebook</button><button id="logoutBtn" class="secondary">Se déconnecter</button></div>
+<div id="adminPanel" class="panel hidden"><p id="adminWelcome"></p><div class="admin-actions"><button id="newBookBtn">Ajouter un ebook</button><button id="newPackBtn" class="secondary">Créer un pack</button><button id="logoutBtn" class="secondary">Se déconnecter</button></div>
 <form id="bookForm" class="hidden">
 <h3 id="formTitle">Ajouter un ebook</h3>
 <input type="hidden" id="bookId">
@@ -42,7 +42,7 @@ footer{background:var(--navy);color:white;text-align:center;padding:25px;margin-
 <label class="check"><input id="published" type="checkbox"> Publier cet ebook dans la boutique</label>
 <p id="formMessage" class="status hidden"></p><div class="admin-actions"><button id="saveBookBtn" type="submit">Enregistrer l'ebook</button><button id="cancelEditBtn" type="button" class="secondary">Annuler</button></div>
 </form>
-<h3>Mes ebooks</h3><div id="adminBooks">Chargement...</div>
+<h3>Gestion des packs</h3><form id="packForm" class="hidden"><h3 id="packFormTitle">Créer un pack</h3><input type="hidden" id="packId"><label>Nom du pack<input id="packTitle" maxlength="150" required></label><label>Description<textarea id="packDescription" maxlength="3000"></textarea></label><div class="row"><label>Prix du pack en euros<input id="packPrice" type="number" min="0" step="0.01" required></label><label>Couverture du pack (facultatif)<input id="packCover" type="file" accept="image/jpeg,image/png,image/webp"></label></div><label>Choisir les ebooks du pack</label><div id="packChoices" class="pack-choices">Chargement des ebooks...</div><label class="check"><input id="packPublished" type="checkbox"> Publier ce pack dans la boutique</label><p id="packMessage" class="status hidden"></p><div class="admin-actions"><button id="savePackBtn" type="submit">Enregistrer le pack</button><button id="cancelPackBtn" type="button" class="secondary">Annuler</button></div></form><div id="adminPacks">Chargement...</div><h3>Mes ebooks</h3><div id="adminBooks">Chargement...</div>
 </div></div></section>
 <footer>© 2026 NATHBOOK – Tous droits réservés</footer>
 <script>
@@ -51,11 +51,18 @@ const SUPABASE_KEY="sb_publishable_iu6Pe7kcRHFINeLKMvwD9w_fzZfjvbU";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 const statusBox=$("status"),booksBox=$("books"),authPanel=$("authPanel"),adminPanel=$("adminPanel");
-let currentBooks=[];
+let currentBooks=[];let currentPacks=[];
 function showStatus(el,message,type){el.textContent=message;el.classList.remove("hidden","ok","err");if(type)el.classList.add(type)}
 function slugify(value){return value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,90)||"ebook"}
 function make(tag,text,className){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el}
 async function getCoverUrl(path){if(!path)return "";const {data,error}=await client.storage.from("ebooks").createSignedUrl(path,3600);if(error){console.warn(error);return ""}return data.signedUrl}
+async function loadPublicPacks(){
+ const box=$("packs");box.replaceChildren();
+ try{const {data,error}=await client.from("packs").select("id,title,description,price,cover_path,pack_ebooks(position,ebooks(title))").eq("is_published",true).order("created_at",{ascending:false});if(error)throw error;
+ if(!data?.length){box.append(make("p","Nos packs arrivent bientôt."));return;}
+ for(const pack of data){const card=make("article",undefined,"pack-card");if(pack.cover_path){const url=await getCoverUrl(pack.cover_path);if(url){const img=make("img");img.className="cover";img.src=url;img.alt="Couverture de "+pack.title;card.append(img)}}card.append(make("h3",pack.title),make("p",pack.description||""));const ul=make("ul");(pack.pack_ebooks||[]).sort((a,b)=>a.position-b.position).forEach(item=>{if(item.ebooks?.title)ul.append(make("li",item.ebooks.title))});if(ul.childElementCount)card.append(ul);card.append(make("p",Number(pack.price).toFixed(2)+" €","price"));box.append(card);}
+ }catch(error){console.error("Chargement des packs publics :",error);box.append(make("p","Les packs ne sont pas disponibles pour le moment."))}
+}
 async function loadPublicBooks(){
  booksBox.replaceChildren();
  try{
@@ -79,7 +86,13 @@ async function checkAdmin(session){
   showStatus($("authMessage"),"Ce compte n'a pas les droits administrateur. Vérifie son rôle dans Supabase.","err");return;
  }
  authPanel.classList.add("hidden");adminPanel.classList.remove("hidden");$("adminWelcome").textContent="Connecté en tant qu'administrateur : "+session.user.email;
- await loadAdminBooks();
+ await loadAdminBooks();await loadAdminPacks();
+}
+async function loadAdminPacks(){
+ const box=$("adminPacks");box.textContent="Chargement...";
+ const {data,error}=await client.from("packs").select("id,title,description,price,is_published,cover_path").order("created_at",{ascending:false});if(error){box.textContent="Erreur : "+error.message;return}currentPacks=data||[];box.replaceChildren();
+ if(!currentPacks.length){box.textContent="Aucun pack pour le moment.";return;}
+ for(const pack of currentPacks){const line=make("div",undefined,"admin-book"),info=make("div"),actions=make("div",undefined,"admin-book-actions");const {data:items}=await client.from("pack_ebooks").select("ebook_id").eq("pack_id",pack.id);const names=(items||[]).map(x=>currentBooks.find(b=>b.id===x.ebook_id)?.title).filter(Boolean);info.append(make("strong",pack.title),make("small",Number(pack.price).toFixed(2)+" € · "+(pack.is_published?"Publié":"Brouillon")+" · "+names.length+" ebook(s) : "+(names.join(", ")||"aucun")));const edit=make("button","Modifier","secondary");edit.type="button";edit.addEventListener("click",()=>editPack(pack,items||[]));const del=make("button","Supprimer","danger");del.type="button";del.addEventListener("click",()=>deletePack(pack));actions.append(edit,del);line.append(info,actions);box.append(line);}
 }
 async function loadAdminBooks(){
  const box=$("adminBooks");box.textContent="Chargement...";
@@ -96,11 +109,18 @@ async function loadAdminBooks(){
   actions.append(edit,del);line.append(info,actions);box.append(line);
  });
 }
+function resetPackForm(){$("packForm").classList.add("hidden");$("packForm").reset();$("packId").value="";$("packFormTitle").textContent="Créer un pack";$("savePackBtn").textContent="Enregistrer le pack";$("packMessage").classList.add("hidden");$("packChoices").replaceChildren();}
+function renderPackChoices(selected=[]){const box=$("packChoices");box.replaceChildren();if(!currentBooks.length){box.textContent="Ajoute d'abord au moins un ebook.";return;}currentBooks.forEach(book=>{const label=make("label",undefined,"pack-choice"),check=make("input");check.type="checkbox";check.value=book.id;check.checked=selected.includes(book.id);label.append(check,make("span",book.title+(book.is_published?"":" (brouillon)")));box.append(label);});}
+function editPack(pack,items){resetPackForm();$("packForm").classList.remove("hidden");$("packId").value=pack.id;$("packTitle").value=pack.title;$("packDescription").value=pack.description||"";$("packPrice").value=pack.price;$("packPublished").checked=pack.is_published;$("packFormTitle").textContent="Modifier le pack";$("savePackBtn").textContent="Enregistrer les modifications";renderPackChoices(items.map(x=>x.ebook_id));$("packForm").scrollIntoView({behavior:"smooth",block:"start"});}
+async function deletePack(pack){if(!confirm("Supprimer définitivement le pack « "+pack.title+" » ?"))return;try{const {error}=await client.from("packs").delete().eq("id",pack.id);if(error)throw error;if(pack.cover_path)await client.storage.from("ebooks").remove([pack.cover_path]);await loadAdminPacks();await loadPublicPacks();}catch(error){alert("Suppression impossible : "+error.message)}}
 function resetBookForm(){ $("bookForm").classList.add("hidden");$("bookForm").reset();$("bookId").value="";$("formTitle").textContent="Ajouter un ebook";$("saveBookBtn").textContent="Enregistrer l'ebook";$("formMessage").classList.add("hidden")}
 function editBook(book){$("bookForm").classList.remove("hidden");$("bookId").value=book.id;$("bookTitle").value=book.title;$("bookDescription").value=book.description||"";$("bookPrice").value=book.price;$("published").checked=book.is_published;$("formTitle").textContent="Modifier l'ebook";$("saveBookBtn").textContent="Enregistrer les modifications";$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})}
 async function uploadFile(file,path){const {data,error}=await client.storage.from("ebooks").upload(path,file,{upsert:true,contentType:file.type});if(error)throw error;return data.path}
 $("loginForm").addEventListener("submit",async event=>{event.preventDefault();showStatus($("authMessage"),"Connexion en cours...");const {data,error}=await client.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error){showStatus($("authMessage"),"Connexion impossible : "+error.message,"err");return}await checkAdmin(data.session)});
 $("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();resetBookForm();await checkAdmin(null)});
+$("newPackBtn").addEventListener("click",()=>{resetPackForm();$("packForm").classList.remove("hidden");renderPackChoices();$("packForm").scrollIntoView({behavior:"smooth",block:"start"})});
+$("cancelPackBtn").addEventListener("click",resetPackForm);
+$("packForm").addEventListener("submit",async event=>{event.preventDefault();const save=$("savePackBtn");save.disabled=true;try{const id=$("packId").value||crypto.randomUUID(),selected=[...$("packChoices").querySelectorAll("input:checked")].map(x=>x.value),cover=$("packCover").files[0];if(!selected.length)throw new Error("Choisis au moins un ebook pour ce pack.");if(cover&&!("image/jpeg,image/png,image/webp".split(",").includes(cover.type)))throw new Error("La couverture doit être JPG, PNG ou WEBP.");const existing=currentPacks.find(p=>p.id===id);let coverPath=existing?.cover_path||null;if(cover)coverPath=await uploadFile(cover,"covers/pack-"+id+"-"+Date.now()+"-"+cover.name.replace(/[^a-zA-Z0-9._-]/g,"_"));const payload={title:$("packTitle").value.trim(),description:$("packDescription").value.trim(),price:Number($("packPrice").value),cover_path:coverPath,is_published:$("packPublished").checked};if(!payload.title)throw new Error("Le nom du pack est obligatoire.");const query=existing?client.from("packs").update(payload).eq("id",id):client.from("packs").insert({id,...payload});const {error}=await query;if(error)throw error;const removed=await client.from("pack_ebooks").delete().eq("pack_id",id);if(removed.error)throw removed.error;const links=await client.from("pack_ebooks").insert(selected.map((ebook_id,position)=>({pack_id:id,ebook_id,position})));if(links.error)throw links.error;resetPackForm();await loadAdminPacks();await loadPublicPacks();}catch(error){showStatus($("packMessage"),"Erreur : "+error.message,"err");console.error(error)}finally{save.disabled=false}});
 $("newBookBtn").addEventListener("click",()=>{resetBookForm();$("bookForm").classList.remove("hidden");$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})});
 $("cancelEditBtn").addEventListener("click",resetBookForm);
 $("bookForm").addEventListener("submit",async event=>{
@@ -132,7 +152,7 @@ async function deleteBook(book){
   await loadAdminBooks();await loadPublicBooks();
  }catch(error){alert("Suppression impossible : "+error.message)}
 }
-(async()=>{await loadPublicBooks();const {data}=await client.auth.getSession();await checkAdmin(data.session);client.auth.onAuthStateChange((_event,session)=>{setTimeout(()=>checkAdmin(session),0)})})();
+(async()=>{await loadPublicBooks();await loadPublicPacks();const {data}=await client.auth.getSession();await checkAdmin(data.session);client.auth.onAuthStateChange((_event,session)=>{setTimeout(()=>checkAdmin(session),0)})})();
 </script>
 </body>
 </html>
