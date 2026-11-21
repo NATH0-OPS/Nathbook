@@ -58,7 +58,7 @@ footer{background:#102635;color:#dce5eb;text-align:center;padding:28px;margin-to
 <section class="hero" id="accueil"><h2>Bienvenue chez NATHBOOK</h2><p>Des ebooks pour apprendre, progresser et s'inspirer.</p></section>
 <section id="boutique"><h2 class="section-title">Notre boutique</h2><p class="intro">Découvrez nos livres numériques.</p><div id="status" class="status">Connexion à la boutique en cours...</div><div class="books" id="books"></div><h2 class="section-title" style="margin-top:48px">Nos packs</h2><p class="intro">Plusieurs ebooks réunis dans une même offre.</p><div class="books" id="packs"></div></section>
 <section id="panier"><div class="admin-wrap"><h2 class="section-title">Mon panier</h2><p class="intro">Retrouve ici les ebooks et les packs que tu souhaites acheter.</p><div id="cartItems" class="panel" style="margin-top:24px"><p class="intro">Ton panier est vide pour le moment.</p></div><div class="panel" style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><strong>Total provisoire : <span id="cartTotal">0,00 €</span></strong><button id="checkoutButton" type="button" disabled>Continuer vers le paiement</button></div><p id="cartNotice" class="intro" style="margin-top:12px;font-size:13px">Le paiement sécurisé sera activé dans la prochaine étape. Aucun débit n'est possible pour le moment.</p></div></section>
-<section id="compte"><div class="admin-wrap"><h2 class="section-title">Mon compte</h2><p class="intro">Crée ton compte NATHBOOK pour retrouver tes achats et tes ebooks au même endroit.</p><div id="customerAuth" class="panel" style="max-width:620px;margin:26px auto"><form id="customerForm"><label>Adresse e-mail<input id="customerEmail" type="email" autocomplete="email" required></label><label>Mot de passe<input id="customerPassword" type="password" minlength="8" autocomplete="new-password" required><small>8 caractères minimum.</small></label><label>Nom ou prénom (pour la création du compte)<input id="customerName" maxlength="100" autocomplete="name" placeholder="Facultatif"></label><div class="admin-actions"><button id="customerLogin" type="button">Se connecter</button><button id="customerSignup" type="button" class="secondary">Créer mon compte</button></div></form><p id="customerMessage" class="status hidden"></p></div><div id="customerPanel" class="panel hidden" style="max-width:760px;margin:26px auto"><p id="customerWelcome"></p><h3>Ma bibliothèque</h3><p>Tu retrouveras ici les ebooks achetés après la mise en place du paiement sécurisé.</p><div id="customerLibrary" class="status">Aucun achat disponible pour le moment.</div><h3>Mes commandes</h3><p id="customerOrders">L'historique de tes commandes sera activé avec le paiement sécurisé.</p><div class="admin-actions"><button id="customerLogout" type="button" class="secondary">Se déconnecter</button></div></div></div></section><section id="administration"><div class="admin-wrap"><h2 class="section-title">Espace administration</h2><p class="intro">Connecte-toi avec le compte administrateur NATHBOOK.</p>
+<section id="compte"><div class="admin-wrap"><h2 class="section-title">Mon compte</h2><p class="intro">Crée ton compte NATHBOOK pour retrouver tes achats et tes ebooks au même endroit.</p><div id="customerAuth" class="panel" style="max-width:620px;margin:26px auto"><form id="customerForm"><label>Adresse e-mail<input id="customerEmail" type="email" autocomplete="email" required></label><label>Mot de passe<input id="customerPassword" type="password" minlength="8" autocomplete="new-password" required><small>8 caractères minimum.</small></label><label>Nom ou prénom (pour la création du compte)<input id="customerName" maxlength="100" autocomplete="name" placeholder="Facultatif"></label><div class="admin-actions"><button id="customerLogin" type="button">Se connecter</button><button id="customerSignup" type="button" class="secondary">Créer mon compte</button></div></form><p style="text-align:center;margin:16px 0 0;font-size:13px"><a href="#administration" style="color:#29495b;font-weight:700">Accès administrateur →</a></p><p id="customerMessage" class="status hidden"></p></div><div id="customerPanel" class="panel hidden" style="max-width:760px;margin:26px auto"><p id="customerWelcome"></p><h3>Ma bibliothèque</h3><p>Tu retrouveras ici les ebooks achetés après la mise en place du paiement sécurisé.</p><div id="customerLibrary" class="status">Aucun achat disponible pour le moment.</div><h3>Mes commandes</h3><p id="customerOrders">L'historique de tes commandes sera activé avec le paiement sécurisé.</p><div class="admin-actions"><button id="customerLogout" type="button" class="secondary">Se déconnecter</button></div></div></div></section><section id="administration"><div class="admin-wrap"><h2 class="section-title">Espace administration</h2><p class="intro">Connecte-toi avec le compte administrateur NATHBOOK.</p>
 <div id="authPanel" class="panel"><form id="loginForm"><label>Adresse e-mail<input id="email" type="email" autocomplete="username" required></label><label>Mot de passe<input id="password" type="password" autocomplete="current-password" required></label><button type="submit">Se connecter</button></form><div id="authMessage" class="status hidden"></div></div>
 <div id="adminPanel" class="panel hidden"><p id="adminWelcome"></p><div class="admin-actions"><button id="newBookBtn">Ajouter un ebook</button><button id="newPackBtn" class="secondary">Créer un pack</button><button id="logoutBtn" class="secondary">Se déconnecter</button></div>
 <form id="bookForm" class="hidden">
@@ -116,15 +116,29 @@ async function loadPublicBooks(){
  }catch(error){showStatus(statusBox,"Connexion non confirmée : "+error.message,"err");console.error(error)}
 }
 async function checkAdmin(session){
- if(!session){authPanel.classList.remove("hidden");adminPanel.classList.add("hidden");$("customerAuth").classList.remove("hidden");$("customerPanel").classList.add("hidden");return}
+ if(!session){
+  authPanel.classList.remove("hidden");adminPanel.classList.add("hidden");
+  $("customerAuth").classList.remove("hidden");$("customerPanel").classList.add("hidden");
+  $("adminWelcome").textContent="";
+  return;
+ }
  $("customerAuth").classList.add("hidden");$("customerPanel").classList.remove("hidden");
  $("customerWelcome").textContent="Connecté avec l'adresse : "+(session.user.email||"");
  const {data,error}=await client.from("profiles").select("role").eq("id",session.user.id).single();
- if(error||!data||data.role!=="admin"){
+ if(error){
   authPanel.classList.add("hidden");adminPanel.classList.add("hidden");
-  $("adminWelcome").textContent="";return;
+  showStatus($("customerMessage"),"Connexion réussie, mais impossible de vérifier ton rôle administrateur. Vérifie la table profiles et ses autorisations Supabase. Détail : "+error.message,"err");
+  return;
  }
- authPanel.classList.add("hidden");adminPanel.classList.remove("hidden");$("adminWelcome").textContent="Connecté en tant qu'administrateur : "+session.user.email;
+ if(!data||data.role!=="admin"){
+  authPanel.classList.add("hidden");adminPanel.classList.add("hidden");
+  $("adminWelcome").textContent="";
+  if(location.hash==="#administration")location.hash="#compte";
+  return;
+ }
+ authPanel.classList.add("hidden");adminPanel.classList.remove("hidden");
+ $("adminWelcome").textContent="Connecté en tant qu'administrateur : "+session.user.email;
+ if(location.hash!=="#administration")location.hash="#administration";
  await loadAdminBooks();await loadAdminPacks();await loadAdminPromos();
 }
 function resetPromoForm(){const f=$("promoForm");f.classList.add("hidden");f.reset();$("promoId").value="";$("promoActive").checked=true;$("promoMessage").classList.add("hidden");$("savePromoBtn").textContent="Enregistrer le code";}
