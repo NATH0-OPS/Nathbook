@@ -85,6 +85,7 @@ async function loadAdminBooks(){
  const box=$("adminBooks");box.textContent="Chargement...";
  const {data,error}=await client.from("ebooks").select("id,title,price,is_published,cover_path,pdf_path").order("created_at",{ascending:false});
  if(error){box.textContent="Erreur : "+error.message;return}
+ currentBooks=data||[];
  box.replaceChildren();
  if(!data.length){box.textContent="Aucun ebook pour le moment.";return}
  data.forEach(book=>{
