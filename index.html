@@ -1,162 +1,137 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NATHBOOK – Boutique d'ebooks</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f8f6f2;
-      color: #242424;
-    }
-    header {
-      background: #172b3a;
-      color: white;
-      padding: 22px 8%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    header h1 { margin: 0; letter-spacing: 2px; }
-    nav a {
-      color: white;
-      margin-left: 18px;
-      text-decoration: none;
-    }
-    .hero {
-      text-align: center;
-      padding: 85px 20px;
-      background: #e9e3d9;
-    }
-    .hero h2 { font-size: 38px; }
-    .hero p { font-size: 18px; }
-    .shop {
-      padding: 45px 8%;
-      text-align: center;
-      min-height: 250px;
-    }
-    .books {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 22px;
-      margin-top: 30px;
-    }
-    .book {
-      background: white;
-      width: 260px;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 3px 14px #00000010;
-      text-align: left;
-    }
-    .book h3 { margin-top: 0; }
-    .price { font-weight: bold; color: #172b3a; }
-    #status {
-      margin: 25px auto;
-      padding: 14px;
-      max-width: 650px;
-      border-radius: 8px;
-      background: #eee;
-      text-align: center;
-    }
-    footer {
-      background: #172b3a;
-      color: white;
-      text-align: center;
-      padding: 25px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NATHBOOK – Boutique d'ebooks</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#172b3a;--cream:#f8f6f2;--sand:#e9e3d9;--gold:#b18b52;--ink:#242424}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--cream);color:var(--ink)}
+header{background:var(--navy);color:white;padding:20px 7%;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{margin:0;letter-spacing:3px}nav{display:flex;gap:20px;flex-wrap:wrap}nav a{color:white;text-decoration:none}
+.hero{text-align:center;padding:72px 20px;background:var(--sand)}.hero h2{font-size:clamp(28px,5vw,42px);margin:0 0 12px}.hero p{font-size:18px}
+section{padding:42px 7%}.section-title{text-align:center;margin:0 0 10px}.intro{text-align:center;color:#666}
+.status{margin:18px auto;padding:13px;max-width:760px;border-radius:8px;background:#eee;text-align:center}.status.ok{background:#e2f3e7}.status.err{background:#f8e5e5}
+.books{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px;margin-top:28px}
+.book,.panel{background:white;border-radius:14px;padding:20px;box-shadow:0 3px 16px #0000000d}
+.cover{width:100%;height:250px;object-fit:cover;border-radius:9px;background:#eee}.book h3{margin:14px 0 8px}.price{font-weight:bold;color:var(--navy);font-size:18px}
+button{border:0;border-radius:8px;padding:11px 16px;background:var(--navy);color:white;font-weight:bold;cursor:pointer}button.secondary{background:#e9e3d9;color:var(--navy)}button.danger{background:#9c3434}button:disabled{opacity:.55;cursor:wait}
+.admin-wrap{max-width:900px;margin:0 auto}.admin-actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+form{display:grid;gap:12px}label{display:grid;gap:6px;font-weight:bold;font-size:14px}input,textarea{width:100%;padding:11px;border:1px solid #ccc;border-radius:8px;font:inherit;background:white}textarea{min-height:95px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.check{display:flex;align-items:center;gap:9px}.check input{width:auto}
+.hidden{display:none!important}.admin-book{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eee}.admin-book small{display:block;color:#666;margin-top:5px}.admin-book-actions{display:flex;gap:8px;flex-wrap:wrap}
+footer{background:var(--navy);color:white;text-align:center;padding:25px;margin-top:40px}
+@media(max-width:600px){.row{grid-template-columns:1fr}.admin-book{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
 <body>
-  <header>
-    <h1>NATHBOOK</h1>
-    <nav>
-      <a href="#accueil">Accueil</a>
-      <a href="#boutique">Boutique</a>
-    </nav>
-  </header>
-
-  <section class="hero" id="accueil">
-    <h2>Bienvenue chez NATHBOOK</h2>
-    <p>Des ebooks pour apprendre, progresser et s'inspirer.</p>
-  </section>
-
-  <section class="shop" id="boutique">
-    <h2>Notre boutique</h2>
-    <p>Découvrez nos livres numériques.</p>
-    <div id="status">Connexion à la boutique en cours...</div>
-    <div class="books" id="books"></div>
-  </section>
-
-  <footer>© 2026 NATHBOOK – Tous droits réservés</footer>
-
-  <script>
-    const SUPABASE_URL = "https://thguadyiuicmhzujfsxr.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_iu6Pe7kcRHFINeLKMvwD9w_fzZfjvbU";
-
-    const statusBox = document.getElementById("status");
-    const booksBox = document.getElementById("books");
-
-    async function loadBooks() {
-      try {
-        if (!SUPABASE_KEY || SUPABASE_KEY === "COLLE_TA_CLE_PUBLIABLE_ICI") {
-          throw new Error("La clé publiable Supabase n'a pas encore été ajoutée.");
-        }
-
-        const client = window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_KEY
-        );
-
-        const { data, error } = await client
-          .from("ebooks")
-          .select("id,title,description,price")
-          .eq("is_published", true)
-          .order("created_at", { ascending: false });
-
-        if (error) throw error;
-
-        statusBox.textContent = "Connexion à Supabase réussie !";
-        statusBox.style.background = "#e2f3e7";
-
-        if (!data || data.length === 0) {
-          booksBox.textContent = "Nos ebooks arrivent bientôt.";
-          return;
-        }
-
-        data.forEach(book => {
-          const article = document.createElement("article");
-          article.className = "book";
-
-          const title = document.createElement("h3");
-          title.textContent = book.title;
-
-          const description = document.createElement("p");
-          description.textContent = book.description || "";
-
-          const price = document.createElement("p");
-          price.className = "price";
-          price.textContent = Number(book.price).toFixed(2) + " €";
-
-          article.append(title, description, price);
-          booksBox.appendChild(article);
-        });
-      } catch (error) {
-        statusBox.textContent = "Connexion non confirmée : " + error.message;
-        statusBox.style.background = "#f8e5e5";
-        console.error(error);
-      }
-    }
-
-    loadBooks();
-  </script>
+<header><h1>NATHBOOK</h1><nav><a href="#accueil">Accueil</a><a href="#boutique">Boutique</a><a href="#administration">Administration</a></nav></header>
+<section class="hero" id="accueil"><h2>Bienvenue chez NATHBOOK</h2><p>Des ebooks pour apprendre, progresser et s'inspirer.</p></section>
+<section id="boutique"><h2 class="section-title">Notre boutique</h2><p class="intro">Découvrez nos livres numériques.</p><div id="status" class="status">Connexion à la boutique en cours...</div><div class="books" id="books"></div></section>
+<section id="administration"><div class="admin-wrap"><h2 class="section-title">Espace administration</h2><p class="intro">Connecte-toi avec le compte administrateur NATHBOOK.</p>
+<div id="authPanel" class="panel"><form id="loginForm"><label>Adresse e-mail<input id="email" type="email" autocomplete="username" required></label><label>Mot de passe<input id="password" type="password" autocomplete="current-password" required></label><button type="submit">Se connecter</button></form><div id="authMessage" class="status hidden"></div></div>
+<div id="adminPanel" class="panel hidden"><p id="adminWelcome"></p><div class="admin-actions"><button id="newBookBtn">Ajouter un ebook</button><button id="logoutBtn" class="secondary">Se déconnecter</button></div>
+<form id="bookForm" class="hidden">
+<h3 id="formTitle">Ajouter un ebook</h3>
+<input type="hidden" id="bookId">
+<label>Titre de l'ebook<input id="bookTitle" maxlength="150" required></label>
+<label>Description<textarea id="bookDescription" maxlength="3000"></textarea></label>
+<div class="row"><label>Prix en euros<input id="bookPrice" type="number" min="0" step="0.01" required></label><label>Couverture (image)<input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp"></label></div>
+<label>Fichier PDF<input id="pdfFile" type="file" accept="application/pdf"></label>
+<label class="check"><input id="published" type="checkbox"> Publier cet ebook dans la boutique</label>
+<p id="formMessage" class="status hidden"></p><div class="admin-actions"><button id="saveBookBtn" type="submit">Enregistrer l'ebook</button><button id="cancelEditBtn" type="button" class="secondary">Annuler</button></div>
+</form>
+<h3>Mes ebooks</h3><div id="adminBooks">Chargement...</div>
+</div></div></section>
+<footer>© 2026 NATHBOOK – Tous droits réservés</footer>
+<script>
+const SUPABASE_URL="https://thguadyiuicmhzujfsxr.supabase.co";
+const SUPABASE_KEY="sb_publishable_iu6Pe7kcRHFINeLKMvwD9w_fzZfjvbU";
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+const statusBox=$("status"),booksBox=$("books"),authPanel=$("authPanel"),adminPanel=$("adminPanel");
+let currentBooks=[];
+function showStatus(el,message,type){el.textContent=message;el.classList.remove("hidden","ok","err");if(type)el.classList.add(type)}
+function slugify(value){return value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,90)||"ebook"}
+function make(tag,text,className){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el}
+async function getCoverUrl(path){if(!path)return "";const {data,error}=await client.storage.from("ebooks").createSignedUrl(path,3600);if(error){console.warn(error);return ""}return data.signedUrl}
+async function loadPublicBooks(){
+ booksBox.replaceChildren();
+ try{
+  const {data,error}=await client.from("ebooks").select("id,title,description,price,cover_path").eq("is_published",true).order("created_at",{ascending:false});
+  if(error)throw error;currentBooks=data||[];
+  if(!currentBooks.length){booksBox.append(make("p","Nos ebooks arrivent bientôt."));}
+  for(const book of currentBooks){
+   const card=make("article",undefined,"book");
+   if(book.cover_path){const url=await getCoverUrl(book.cover_path);if(url){const img=make("img");img.className="cover";img.src=url;img.alt="Couverture de "+book.title;card.append(img)}}
+   card.append(make("h3",book.title),make("p",book.description||""),make("p",Number(book.price).toFixed(2)+" €","price"));
+   booksBox.append(card);
+  }
+  showStatus(statusBox,"Connexion à Supabase réussie !","ok");
+ }catch(error){showStatus(statusBox,"Connexion non confirmée : "+error.message,"err");console.error(error)}
+}
+async function checkAdmin(session){
+ if(!session){authPanel.classList.remove("hidden");adminPanel.classList.add("hidden");return}
+ const {data,error}=await client.from("profiles").select("role").eq("id",session.user.id).single();
+ if(error||!data||data.role!=="admin"){
+  await client.auth.signOut();authPanel.classList.remove("hidden");adminPanel.classList.add("hidden");
+  showStatus($("authMessage"),"Ce compte n'a pas les droits administrateur. Vérifie son rôle dans Supabase.","err");return;
+ }
+ authPanel.classList.add("hidden");adminPanel.classList.remove("hidden");$("adminWelcome").textContent="Connecté en tant qu'administrateur : "+session.user.email;
+ await loadAdminBooks();
+}
+async function loadAdminBooks(){
+ const box=$("adminBooks");box.textContent="Chargement...";
+ const {data,error}=await client.from("ebooks").select("id,title,price,is_published,cover_path,pdf_path").order("created_at",{ascending:false});
+ if(error){box.textContent="Erreur : "+error.message;return}
+ box.replaceChildren();
+ if(!data.length){box.textContent="Aucun ebook pour le moment.";return}
+ data.forEach(book=>{
+  const line=make("div",undefined,"admin-book"),info=make("div"),actions=make("div",undefined,"admin-book-actions");
+  info.append(make("strong",book.title),make("small",Number(book.price).toFixed(2)+" € · "+(book.is_published?"Publié":"Brouillon")+" · PDF "+(book.pdf_path?"ajouté":"manquant")));
+  const edit=make("button","Modifier","secondary");edit.type="button";edit.addEventListener("click",()=>editBook(book));
+  const del=make("button","Supprimer","danger");del.type="button";del.addEventListener("click",()=>deleteBook(book));
+  actions.append(edit,del);line.append(info,actions);box.append(line);
+ });
+}
+function resetBookForm(){ $("bookForm").classList.add("hidden");$("bookForm").reset();$("bookId").value="";$("formTitle").textContent="Ajouter un ebook";$("saveBookBtn").textContent="Enregistrer l'ebook";$("formMessage").classList.add("hidden")}
+function editBook(book){$("bookForm").classList.remove("hidden");$("bookId").value=book.id;$("bookTitle").value=book.title;$("bookDescription").value=book.description||"";$("bookPrice").value=book.price;$("published").checked=book.is_published;$("formTitle").textContent="Modifier l'ebook";$("saveBookBtn").textContent="Enregistrer les modifications";$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})}
+async function uploadFile(file,path){const {data,error}=await client.storage.from("ebooks").upload(path,file,{upsert:true,contentType:file.type});if(error)throw error;return data.path}
+$("loginForm").addEventListener("submit",async event=>{event.preventDefault();showStatus($("authMessage"),"Connexion en cours...");const {data,error}=await client.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error){showStatus($("authMessage"),"Connexion impossible : "+error.message,"err");return}await checkAdmin(data.session)});
+$("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();resetBookForm();await checkAdmin(null)});
+$("newBookBtn").addEventListener("click",()=>{resetBookForm();$("bookForm").classList.remove("hidden");$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})});
+$("cancelEditBtn").addEventListener("click",resetBookForm);
+$("bookForm").addEventListener("submit",async event=>{
+ event.preventDefault();const save=$("saveBookBtn");save.disabled=true;
+ try{
+  const id=$("bookId").value||crypto.randomUUID(),title=$("bookTitle").value.trim(),cover=$("coverFile").files[0],pdf=$("pdfFile").files[0];
+  if(!title)throw new Error("Le titre est obligatoire.");
+  if(pdf&&pdf.type!=="application/pdf")throw new Error("Le fichier du livre doit être un PDF.");
+  if(cover&&!["image/jpeg","image/png","image/webp"].includes(cover.type))throw new Error("La couverture doit être une image JPG, PNG ou WEBP.");
+  const existing=currentBooks.find(b=>b.id===id);
+  let coverPath=existing?.cover_path||null,pdfPath=existing?.pdf_path||null;
+  if(cover)coverPath=await uploadFile(cover,"covers/"+id+"-"+Date.now()+"-"+cover.name.replace(/[^a-zA-Z0-9._-]/g,"_"));
+  if(pdf)pdfPath=await uploadFile(pdf,"pdf/"+id+"-"+Date.now()+".pdf");
+  if(!existing&&!pdfPath)throw new Error("Ajoute le fichier PDF de cet ebook.");
+  const payload={title,slug:slugify(title)+"-"+id.slice(0,8),description:$("bookDescription").value.trim(),price:Number($("bookPrice").value),cover_path:coverPath,pdf_path:pdfPath,is_published:$("published").checked,updated_at:new Date().toISOString()};
+  const query=existing?client.from("ebooks").update(payload).eq("id",id):client.from("ebooks").insert({id,...payload});
+  const {error}=await query;if(error)throw error;
+  showStatus($("formMessage"),"Ebook enregistré avec succès. Les fichiers sont stockés dans le bucket privé.","ok");
+  resetBookForm();await loadAdminBooks();await loadPublicBooks();
+ }catch(error){showStatus($("formMessage"),"Erreur : "+error.message,"err");console.error(error)}
+ finally{save.disabled=false}
+});
+async function deleteBook(book){
+ if(!confirm("Supprimer définitivement « "+book.title+" » ?"))return;
+ try{
+  const paths=[book.cover_path,book.pdf_path].filter(Boolean);
+  const {error}=await client.from("ebooks").delete().eq("id",book.id);if(error)throw error;
+  if(paths.length){const result=await client.storage.from("ebooks").remove(paths);if(result.error)console.warn("Fichiers à supprimer manuellement :",result.error)}
+  await loadAdminBooks();await loadPublicBooks();
+ }catch(error){alert("Suppression impossible : "+error.message)}
+}
+(async()=>{await loadPublicBooks();const {data}=await client.auth.getSession();await checkAdmin(data.session);client.auth.onAuthStateChange((_event,session)=>{setTimeout(()=>checkAdmin(session),0)})})();
+</script>
 </body>
 </html>
