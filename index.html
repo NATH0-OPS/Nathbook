@@ -39,6 +39,8 @@ footer{background:var(--navy);color:white;text-align:center;padding:25px;margin-
 <label>Description<textarea id="bookDescription" maxlength="3000"></textarea></label>
 <div class="row"><label>Prix en euros<input id="bookPrice" type="number" min="0" step="0.01" required></label><label>Couverture (image)<input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp"></label></div>
 <label>Fichier PDF<input id="pdfFile" type="file" accept="application/pdf"></label>
+<p id="bookFilesInfo" class="status hidden">Fichiers déjà associés à cet ebook : ils seront conservés si tu ne sélectionnes pas de nouveaux fichiers.</p>
+<p class="intro" style="font-size:13px;margin:0">En modification, laisse les champs de fichiers vides pour conserver les fichiers déjà enregistrés.</p>
 <label class="check"><input id="published" type="checkbox"> Publier cet ebook dans la boutique</label>
 <p id="formMessage" class="status hidden"></p><div class="admin-actions"><button id="saveBookBtn" type="submit">Enregistrer l'ebook</button><button id="cancelEditBtn" type="button" class="secondary">Annuler</button></div>
 </form>
@@ -96,7 +98,7 @@ async function loadAdminPacks(){
 }
 async function loadAdminBooks(){
  const box=$("adminBooks");box.textContent="Chargement...";
- const {data,error}=await client.from("ebooks").select("id,title,price,is_published,cover_path,pdf_path").order("created_at",{ascending:false});
+ const {data,error}=await client.from("ebooks").select("id,title,description,price,is_published,cover_path,pdf_path").order("created_at",{ascending:false});
  if(error){box.textContent="Erreur : "+error.message;return}
  currentBooks=data||[];
  box.replaceChildren();
@@ -113,8 +115,8 @@ function resetPackForm(){$("packForm").classList.add("hidden");$("packForm").res
 function renderPackChoices(selected=[]){const box=$("packChoices");box.replaceChildren();if(!currentBooks.length){box.textContent="Ajoute d'abord au moins un ebook.";return;}currentBooks.forEach(book=>{const label=make("label",undefined,"pack-choice"),check=make("input");check.type="checkbox";check.value=book.id;check.checked=selected.includes(book.id);label.append(check,make("span",book.title+(book.is_published?"":" (brouillon)")));box.append(label);});}
 function editPack(pack,items){resetPackForm();$("packForm").classList.remove("hidden");$("packId").value=pack.id;$("packTitle").value=pack.title;$("packDescription").value=pack.description||"";$("packPrice").value=pack.price;$("packPublished").checked=pack.is_published;$("packFormTitle").textContent="Modifier le pack";$("savePackBtn").textContent="Enregistrer les modifications";renderPackChoices(items.map(x=>x.ebook_id));$("packForm").scrollIntoView({behavior:"smooth",block:"start"});}
 async function deletePack(pack){if(!confirm("Supprimer définitivement le pack « "+pack.title+" » ?"))return;try{const {error}=await client.from("packs").delete().eq("id",pack.id);if(error)throw error;if(pack.cover_path)await client.storage.from("ebooks").remove([pack.cover_path]);await loadAdminPacks();await loadPublicPacks();}catch(error){alert("Suppression impossible : "+error.message)}}
-function resetBookForm(){ $("bookForm").classList.add("hidden");$("bookForm").reset();$("bookId").value="";$("formTitle").textContent="Ajouter un ebook";$("saveBookBtn").textContent="Enregistrer l'ebook";$("formMessage").classList.add("hidden")}
-function editBook(book){$("bookForm").classList.remove("hidden");$("bookId").value=book.id;$("bookTitle").value=book.title;$("bookDescription").value=book.description||"";$("bookPrice").value=book.price;$("published").checked=book.is_published;$("formTitle").textContent="Modifier l'ebook";$("saveBookBtn").textContent="Enregistrer les modifications";$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})}
+function resetBookForm(){ $("bookForm").classList.add("hidden");$("bookForm").reset();$("bookId").value="";$("formTitle").textContent="Ajouter un ebook";$("saveBookBtn").textContent="Enregistrer l'ebook";$("formMessage").classList.add("hidden");$("bookFilesInfo").classList.add("hidden");$("bookFilesInfo").textContent=""}
+function editBook(book){resetBookForm();$("bookForm").classList.remove("hidden");$("bookId").value=book.id;$("bookTitle").value=book.title;$("bookDescription").value=book.description||"";$("bookPrice").value=book.price;$("published").checked=book.is_published;$("formTitle").textContent="Modifier l'ebook existant";$("saveBookBtn").textContent="Enregistrer les modifications";$("bookFilesInfo").textContent="Modification de : "+book.title+". "+(book.cover_path?"Couverture actuelle conservée. ":"Aucune couverture enregistrée. ")+(book.pdf_path?"PDF actuel conservé.":"Aucun PDF enregistré.")+" Laisse les champs de fichiers vides pour garder les fichiers actuels.";$("bookFilesInfo").classList.remove("hidden");$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})}
 async function uploadFile(file,path){const {data,error}=await client.storage.from("ebooks").upload(path,file,{upsert:true,contentType:file.type});if(error)throw error;return data.path}
 $("loginForm").addEventListener("submit",async event=>{event.preventDefault();showStatus($("authMessage"),"Connexion en cours...");const {data,error}=await client.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error){showStatus($("authMessage"),"Connexion impossible : "+error.message,"err");return}await checkAdmin(data.session)});
 $("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();resetBookForm();await checkAdmin(null)});
@@ -131,13 +133,14 @@ $("bookForm").addEventListener("submit",async event=>{
   if(pdf&&pdf.type!=="application/pdf")throw new Error("Le fichier du livre doit être un PDF.");
   if(cover&&!["image/jpeg","image/png","image/webp"].includes(cover.type))throw new Error("La couverture doit être une image JPG, PNG ou WEBP.");
   const existing=currentBooks.find(b=>b.id===id);
+  if($("bookId").value&&!existing)throw new Error("Impossible de retrouver cet ebook. Actualise la page et réessaie : aucun nouvel ebook ne sera créé.");
   let coverPath=existing?.cover_path||null,pdfPath=existing?.pdf_path||null;
   if(cover)coverPath=await uploadFile(cover,"covers/"+id+"-"+Date.now()+"-"+cover.name.replace(/[^a-zA-Z0-9._-]/g,"_"));
   if(pdf)pdfPath=await uploadFile(pdf,"pdf/"+id+"-"+Date.now()+".pdf");
   if(!existing&&!pdfPath)throw new Error("Ajoute le fichier PDF de cet ebook.");
   const payload={title,slug:slugify(title)+"-"+id.slice(0,8),description:$("bookDescription").value.trim(),price:Number($("bookPrice").value),cover_path:coverPath,pdf_path:pdfPath,is_published:$("published").checked,updated_at:new Date().toISOString()};
-  const query=existing?client.from("ebooks").update(payload).eq("id",id):client.from("ebooks").insert({id,...payload});
-  const {error}=await query;if(error)throw error;
+  const query=existing?client.from("ebooks").update(payload).eq("id",id).select("id").single():client.from("ebooks").insert({id,...payload}).select("id").single();
+  const {data:savedBook,error}=await query;if(error)throw error;if(!savedBook)throw new Error("L’enregistrement n’a pas été confirmé.");
   showStatus($("formMessage"),"Ebook enregistré avec succès. Les fichiers sont stockés dans le bucket privé.","ok");
   resetBookForm();await loadAdminBooks();await loadPublicBooks();
  }catch(error){showStatus($("formMessage"),"Erreur : "+error.message,"err");console.error(error)}
