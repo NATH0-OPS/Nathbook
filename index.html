@@ -107,7 +107,7 @@
 
     async function loadBooks() {
       try {
-        if (SUPABASE_KEY === "sb_publishable_iu6Pe7kcRHFINeLKMvwD9w_fzZfjvbU") {
+        if (!SUPABASE_KEY || SUPABASE_KEY === "COLLE_TA_CLE_PUBLIABLE_ICI") {
           throw new Error("La clé publiable Supabase n'a pas encore été ajoutée.");
         }
 
