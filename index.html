@@ -5,7 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NATHBOOK – Boutique d'ebooks</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -15,27 +17,55 @@
     header {
       background: #172b3a;
       color: white;
-      padding: 28px 8%;
+      padding: 22px 8%;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
     }
     header h1 { margin: 0; letter-spacing: 2px; }
-    nav a { color: white; margin-left: 20px; text-decoration: none; }
+    nav a {
+      color: white;
+      margin-left: 18px;
+      text-decoration: none;
+    }
     .hero {
       text-align: center;
-      padding: 100px 20px;
+      padding: 85px 20px;
       background: #e9e3d9;
     }
-    .hero h2 { font-size: 42px; }
+    .hero h2 { font-size: 38px; }
     .hero p { font-size: 18px; }
-    .shop { padding: 55px 8%; text-align: center; }
+    .shop {
+      padding: 45px 8%;
+      text-align: center;
+      min-height: 250px;
+    }
+    .books {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 22px;
+      margin-top: 30px;
+    }
     .book {
       background: white;
-      max-width: 300px;
-      margin: 25px auto;
-      padding: 30px;
+      width: 260px;
+      padding: 24px;
       border-radius: 12px;
+      box-shadow: 0 3px 14px #00000010;
+      text-align: left;
+    }
+    .book h3 { margin-top: 0; }
+    .price { font-weight: bold; color: #172b3a; }
+    #status {
+      margin: 25px auto;
+      padding: 14px;
+      max-width: 650px;
+      border-radius: 8px;
+      background: #eee;
+      text-align: center;
     }
     footer {
       background: #172b3a;
@@ -48,19 +78,85 @@
 <body>
   <header>
     <h1>NATHBOOK</h1>
-    <nav><a href="#accueil">Accueil</a><a href="#boutique">Boutique</a></nav>
+    <nav>
+      <a href="#accueil">Accueil</a>
+      <a href="#boutique">Boutique</a>
+    </nav>
   </header>
 
   <section class="hero" id="accueil">
     <h2>Bienvenue chez NATHBOOK</h2>
-    <p>Découvrez des ebooks pour apprendre, progresser et vous inspirer.</p>
+    <p>Des ebooks pour apprendre, progresser et s'inspirer.</p>
   </section>
 
   <section class="shop" id="boutique">
     <h2>Notre boutique</h2>
-    <p>Nos prochains ebooks arrivent bientôt.</p>
+    <p>Découvrez nos livres numériques.</p>
+    <div id="status">Connexion à la boutique en cours...</div>
+    <div class="books" id="books"></div>
   </section>
 
   <footer>© 2026 NATHBOOK – Tous droits réservés</footer>
+
+  <script>
+    const SUPABASE_URL = "https://thguadyiuicmhzujfsxr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_iu6Pe7kcRHFINeLKMvwD9w_fzZfjvbU";
+
+    const statusBox = document.getElementById("status");
+    const booksBox = document.getElementById("books");
+
+    async function loadBooks() {
+      try {
+        if (SUPABASE_KEY === "sb_publishable_iu6Pe7kcRHFINeLKMvwD9w_fzZfjvbU") {
+          throw new Error("La clé publiable Supabase n'a pas encore été ajoutée.");
+        }
+
+        const client = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+        const { data, error } = await client
+          .from("ebooks")
+          .select("id,title,description,price")
+          .eq("is_published", true)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        statusBox.textContent = "Connexion à Supabase réussie !";
+        statusBox.style.background = "#e2f3e7";
+
+        if (!data || data.length === 0) {
+          booksBox.textContent = "Nos ebooks arrivent bientôt.";
+          return;
+        }
+
+        data.forEach(book => {
+          const article = document.createElement("article");
+          article.className = "book";
+
+          const title = document.createElement("h3");
+          title.textContent = book.title;
+
+          const description = document.createElement("p");
+          description.textContent = book.description || "";
+
+          const price = document.createElement("p");
+          price.className = "price";
+          price.textContent = Number(book.price).toFixed(2) + " €";
+
+          article.append(title, description, price);
+          booksBox.appendChild(article);
+        });
+      } catch (error) {
+        statusBox.textContent = "Connexion non confirmée : " + error.message;
+        statusBox.style.background = "#f8e5e5";
+        console.error(error);
+      }
+    }
+
+    loadBooks();
+  </script>
 </body>
 </html>
