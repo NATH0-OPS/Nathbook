@@ -220,6 +220,42 @@ footer{background:#203a32;padding:34px;color:#e7e2d8}
 @media(max-width:760px){.admin-dashboard-intro{align-items:flex-start;flex-direction:column}.admin-stats{grid-template-columns:1fr 1fr}.admin-quick{grid-template-columns:1fr}.admin-quick-card{padding:13px}.admin-live{white-space:normal}}
 @media(max-width:480px){.admin-stats{grid-template-columns:1fr}.admin-topbar{align-items:flex-start}.admin-logout{font-size:11px!important;padding:8px 11px!important}}
 
+
+/* Gestion des ebooks */
+.admin-product-form{background:#fffefa!important}
+.product-form-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;padding-bottom:22px;margin-bottom:24px;border-bottom:1px solid #e9e2d7}
+.product-form-heading h3{margin:6px 0 5px;color:#29483c;font:500 clamp(23px,3vw,30px) Georgia,serif}
+.product-form-heading p{margin:0;color:#77786f;font-size:13px;line-height:1.6}
+.product-form-mark{display:grid;place-items:center;width:52px;height:52px;border-radius:17px;background:#f0ece3;color:#8d6947;font:italic 27px Georgia,serif}
+.product-form-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(220px,.8fr);gap:25px;align-items:start}
+.form-step{display:flex;align-items:center;gap:12px;margin:4px 0 16px;padding-bottom:12px;border-bottom:1px solid #eee8de}
+.form-step>span{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:#edf3eb;color:#42634d;font-size:11px;font-weight:850}
+.form-step strong,.form-step small{display:block}.form-step strong{color:#29483c;font-size:13px}.form-step small{margin-top:3px;color:#8a887f;font-size:11px}
+#bookForm label{display:block;margin:0 0 15px;color:#4c594f;font-size:12px;font-weight:750}
+#bookForm input:not([type=checkbox]),#bookForm textarea,#bookForm select{margin-top:7px;border:1px solid #e4ded3;border-radius:11px;background:#fffefa;box-shadow:none}
+#bookForm input:focus,#bookForm textarea:focus,#bookForm select:focus{outline:2px solid #dce8dc;border-color:#9bb39d}
+#bookForm .upload-field{padding:14px;border:1px dashed #d7cbbb;border-radius:13px;background:#faf8f2}
+#bookForm .upload-field small{display:block;margin-top:6px;color:#8b887e;font-size:10px;font-weight:500}
+.form-hint{padding:11px 13px;border-radius:10px;background:#f3f5ef;color:#6d7669;font-size:11px;line-height:1.6}
+.product-preview{position:sticky;top:18px;padding:17px;border:1px solid #e8e0d4;border-radius:17px;background:linear-gradient(160deg,#f8f5ee,#fffefa)}
+.preview-cover-wrap{display:grid;place-items:center;min-height:230px;margin:14px 0;padding:14px;border-radius:13px;background:#eee9df}
+.book-cover-preview{display:block;max-width:100%;width:auto;height:220px;object-fit:contain;border-radius:5px;box-shadow:0 9px 22px #342b1b20}
+.book-cover-placeholder{display:grid;justify-items:center;gap:8px;color:#8a765e;text-align:center}.book-cover-placeholder>span{font-size:30px}.book-cover-placeholder strong{font:500 17px Georgia,serif}.book-cover-placeholder small{font-size:10px;color:#999184}
+.book-preview-title{display:block;color:#29483c;font:500 17px Georgia,serif;line-height:1.4}
+#bookPreviewDescription{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin:8px 0;color:#77786f;font-size:11px;line-height:1.6}
+.book-preview-price{display:block;margin:12px 0;color:#9a7049;font-size:16px;font-weight:850}
+.preview-pdf{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #e9e2d7;border-radius:10px;background:#fffefa}
+.preview-pdf>span{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:#f6e9e5;color:#9b5144;font-size:10px;font-weight:900}.preview-pdf small{color:#77786f;font-size:10px;overflow-wrap:anywhere}
+.admin-book-card{display:grid;grid-template-columns:76px minmax(0,1fr);gap:15px;align-items:center}
+.admin-book-thumb{width:76px;height:94px;display:grid;place-items:center;overflow:hidden;border-radius:10px;background:#eee9df;color:#90785d;font:italic 22px Georgia,serif}
+.admin-book-thumb img{width:100%;height:100%;object-fit:cover}
+.admin-book-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.admin-book-tag{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#f0ece3;color:#78664f;font-size:9px;font-weight:800}
+.admin-book-tag.is-published{background:#edf3eb;color:#42634d}.admin-book-tag.is-draft{background:#f4eee5;color:#8c6a42}
+.admin-book-card .admin-book-actions{grid-column:1/-1}
+@media(max-width:760px){.product-form-grid{grid-template-columns:1fr}.product-preview{position:static;grid-row:1}.preview-cover-wrap{min-height:190px}.book-cover-preview{height:180px}}
+@media(max-width:560px){.admin-book-card{grid-template-columns:58px minmax(0,1fr);gap:10px}.admin-book-thumb{width:58px;height:76px}.product-form-heading{align-items:flex-start}.product-form-mark{width:42px;height:42px}}
+
 </style>
 </head>
 <body>
@@ -243,17 +279,20 @@ footer{background:#203a32;padding:34px;color:#e7e2d8}
 <button id="adminGoPromos" type="button" class="admin-quick-card"><span class="quick-icon">％</span><span><strong>Codes promotionnels</strong><small>Préparer vos avantages clients</small></span><b>→</b></button>
 </div>
 <div class="admin-section-heading"><span class="admin-kicker">GESTION DE LA BOUTIQUE</span><span class="admin-section-line"></span></div>
-<form id="bookForm" class="hidden">
-<h3 id="formTitle">Ajouter un ebook</h3>
+<form id="bookForm" class="hidden admin-product-form">
+<div class="product-form-heading"><div><span class="admin-kicker">FICHE PRODUIT</span><h3 id="formTitle">Ajouter un ebook</h3><p>Présentez votre ebook avec une belle couverture et des informations claires.</p></div><span class="product-form-mark">N.</span></div>
 <input type="hidden" id="bookId">
-<label>Titre de l'ebook<input id="bookTitle" maxlength="150" required></label>
-<label>Description<textarea id="bookDescription" maxlength="3000"></textarea></label>
-<div class="row"><label>Prix en euros<input id="bookPrice" type="number" min="0" step="0.25" required></label><label>Couverture (image)<input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp"></label></div>
-<label>Fichier PDF<input id="pdfFile" type="file" accept="application/pdf"></label>
-<p id="bookFilesInfo" class="status hidden">Fichiers déjà associés à cet ebook : ils seront conservés si tu ne sélectionnes pas de nouveaux fichiers.</p>
-<p class="intro" style="font-size:13px;margin:0">En modification, laisse les champs de fichiers vides pour conserver les fichiers déjà enregistrés.</p>
-<label class="check"><input id="published" type="checkbox"> Publier cet ebook dans la boutique</label>
-<p id="formMessage" class="status hidden"></p><div class="admin-actions"><button id="saveBookBtn" type="submit">Enregistrer l'ebook</button><button id="cancelEditBtn" type="button" class="secondary">Annuler</button></div>
+<div class="product-form-grid"><div class="product-form-fields">
+<div class="form-step"><span>01</span><div><strong>Informations principales</strong><small>Le titre et la présentation de votre ebook.</small></div></div>
+<label>Titre de l'ebook<input id="bookTitle" maxlength="150" placeholder="Ex. : Mieux gérer son budget" required></label>
+<label>Description<textarea id="bookDescription" maxlength="3000" rows="5" placeholder="Présentez le contenu, les bénéfices et ce que le lecteur va apprendre..."></textarea></label>
+<div class="row"><label>Prix de vente (€)<input id="bookPrice" type="number" min="0" step="0.25" placeholder="9,90" required></label><label>Visibilité<select id="published"><option value="false">Enregistrer en brouillon</option><option value="true">Publier dans la boutique</option></select></label></div>
+<div class="form-step"><span>02</span><div><strong>Fichiers du produit</strong><small>Ajoutez la couverture et le document PDF.</small></div></div>
+<label class="upload-field">Couverture de l'ebook<input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp"><small>Formats acceptés : JPG, PNG ou WEBP.</small></label>
+<label class="upload-field">Fichier PDF<input id="pdfFile" type="file" accept="application/pdf"><small>Le PDF sera conservé en stockage privé.</small></label>
+<p id="bookFilesInfo" class="status hidden"></p><p class="form-hint">Lors d'une modification, les fichiers existants sont conservés si vous ne sélectionnez pas de nouveaux fichiers.</p>
+</div><aside class="product-preview"><span class="admin-kicker">APERÇU DE LA FICHE</span><div class="preview-cover-wrap"><img id="bookCoverPreview" alt="Aperçu de la couverture" class="book-cover-preview hidden"><div id="bookCoverPlaceholder" class="book-cover-placeholder"><span>✦</span><strong>Votre couverture</strong><small>L'image apparaîtra ici</small></div></div><strong id="bookPreviewTitle" class="book-preview-title">Titre de votre ebook</strong><p id="bookPreviewDescription">Votre description apparaîtra ici.</p><span id="bookPreviewPrice" class="book-preview-price">0,00 €</span><div class="preview-pdf" id="bookPdfPreview"><span>PDF</span><small>Aucun fichier sélectionné</small></div></aside></div>
+<p id="formMessage" class="status hidden"></p><div class="admin-actions product-form-actions"><button id="saveBookBtn" type="submit">Enregistrer l'ebook</button><button id="cancelEditBtn" type="button" class="secondary">Annuler</button></div>
 </form>
 <h3 id="adminPacksTitle">Gestion des packs</h3><form id="packForm" class="hidden"><h3 id="packFormTitle">Créer un pack</h3><input type="hidden" id="packId"><label>Nom du pack<input id="packTitle" maxlength="150" required></label><label>Description<textarea id="packDescription" maxlength="3000"></textarea></label><div class="row"><label>Prix du pack en euros<input id="packPrice" type="number" min="0" step="0.25" required></label><label>Couverture du pack (facultatif)<input id="packCover" type="file" accept="image/jpeg,image/png,image/webp"></label></div><p id="packFilesInfo" class="status hidden">La couverture actuelle sera conservée si tu n'en sélectionnes pas une nouvelle.</p><label>Choisir les ebooks du pack</label><div id="packChoices" class="pack-choices">Chargement des ebooks...</div><label class="check"><input id="packPublished" type="checkbox"> Publier ce pack dans la boutique</label><p id="packMessage" class="status hidden"></p><div class="admin-actions"><button id="savePackBtn" type="submit">Enregistrer le pack</button><button id="cancelPackBtn" type="button" class="secondary">Annuler</button></div></form><h3 id="adminPromosTitle">Codes promotionnels</h3><p class="intro" style="text-align:left;margin:0 0 12px">Crée et gère les réductions de la boutique. Leur application au paiement sera activée avec le parcours de commande sécurisé.</p><form id="promoForm" class="hidden"><input type="hidden" id="promoId"><label>Code promotionnel<input id="promoCode" maxlength="40" placeholder="BIENVENUE10" required></label><div class="row"><label>Type de réduction<select id="promoType"><option value="percent">Pourcentage (%)</option><option value="fixed">Montant fixe (€)</option></select></label><label>Valeur de la réduction<input id="promoValue" type="number" min="0.25" step="0.25" required></label></div><div class="row"><label>Valable à partir du (facultatif)<input id="promoStart" type="datetime-local"></label><label>Expire le (facultatif)<input id="promoEnd" type="datetime-local"></label></div><div class="row"><label>Nombre maximum d’utilisations (facultatif)<input id="promoLimit" type="number" min="1" step="1" placeholder="Illimité"></label><label>Applicable à<select id="promoScope"><option value="all">Toute la boutique</option><option value="ebook">Ebooks uniquement</option><option value="pack">Packs uniquement</option></select></label></div><label class="check"><input id="promoActive" type="checkbox" checked> Code actif</label><p id="promoMessage" class="status hidden"></p><div class="admin-actions"><button id="savePromoBtn" type="submit">Enregistrer le code</button><button id="cancelPromoBtn" type="button" class="secondary">Annuler</button></div></form><div class="admin-actions"><button id="newPromoBtn" type="button" class="secondary">Créer un code promo</button></div><div id="adminPromos">La gestion des codes promo sera disponible après la création de sa table dans Supabase.</div><div id="adminPacks">Chargement...</div><h3 id="adminBooksTitle">Mes ebooks</h3><div id="adminBooks">Chargement...</div>
 </div></div></section>
@@ -264,7 +303,7 @@ const SUPABASE_KEY="sb_publishable_iu6Pe7kcRHFINeLKMvwD9w_fzZfjvbU";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 const statusBox=$("status"),booksBox=$("books"),authPanel=$("authPanel"),adminPanel=$("adminPanel");
-let currentBooks=[];let currentPacks=[];let cart=[];let isPasswordRecovery=false;
+let currentBooks=[];let currentPacks=[];let cart=[];let isPasswordRecovery=false;let bookPreviewObjectUrl=null;
 
 function updateAdminStats(){
  const total=currentBooks.length;
@@ -378,20 +417,25 @@ async function loadAdminBooks(){
  updateAdminStats();
  box.replaceChildren();
  if(!data.length){box.textContent="Aucun ebook pour le moment.";return}
- data.forEach(book=>{
-  const line=make("div",undefined,"admin-book"),info=make("div"),actions=make("div",undefined,"admin-book-actions");
-  info.append(make("strong",book.title),make("small",Number(book.price).toFixed(2)+" € · "+(book.is_published?"Publié":"Brouillon")+" · PDF "+(book.pdf_path?"ajouté":"manquant")));
-  const edit=make("button","Modifier","secondary");edit.type="button";edit.addEventListener("click",()=>editBook(book));
+ for(const book of data){
+  const line=make("div",undefined,"admin-book admin-book-card"),thumb=make("div",undefined,"admin-book-thumb"),info=make("div"),actions=make("div",undefined,"admin-book-actions");
+  if(book.cover_path){const url=await getCoverUrl(book.cover_path);if(url){const img=make("img");img.src=url;img.alt="Couverture de "+book.title;thumb.append(img)}}
+  if(!thumb.childElementCount)thumb.textContent="N.";
+  info.append(make("strong",book.title));
+  const meta=make("div",undefined,"admin-book-meta");
+  meta.append(make("span",book.is_published?"Publié":"Brouillon","admin-book-tag "+(book.is_published?"is-published":"is-draft")),make("span",Number(book.price).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" €","admin-book-tag"),make("span","PDF "+(book.pdf_path?"ajouté":"manquant"),"admin-book-tag"));
+  info.append(meta);
+  const edit=make("button","Modifier la fiche","secondary");edit.type="button";edit.addEventListener("click",()=>editBook(book));
   const del=make("button","Supprimer","danger");del.type="button";del.addEventListener("click",()=>deleteBook(book));
-  actions.append(edit,del);line.append(info,actions);box.append(line);
- });
+  actions.append(edit,del);line.append(thumb,info,actions);box.append(line);
+ }
 }
 function resetPackForm(){$("packForm").classList.add("hidden");$("packForm").reset();$("packId").value="";$("packFormTitle").textContent="Créer un pack";$("savePackBtn").textContent="Enregistrer le pack";$("packMessage").classList.add("hidden");$("packFilesInfo").classList.add("hidden");$("packFilesInfo").textContent="";$("packChoices").replaceChildren();}
 function renderPackChoices(selected=[]){const box=$("packChoices");box.replaceChildren();if(!currentBooks.length){box.textContent="Ajoute d'abord au moins un ebook.";return;}currentBooks.forEach(book=>{const label=make("label",undefined,"pack-choice"),check=make("input");check.type="checkbox";check.value=book.id;check.checked=selected.includes(book.id);label.append(check,make("span",book.title+(book.is_published?"":" (brouillon)")));box.append(label);});}
 function editPack(pack,items){resetPackForm();$("packForm").classList.remove("hidden");$("packId").value=pack.id;$("packTitle").value=pack.title;$("packDescription").value=pack.description||"";$("packPrice").value=pack.price;$("packPublished").checked=pack.is_published;$("packFormTitle").textContent="Modifier le pack existant";$("savePackBtn").textContent="Enregistrer les modifications";$("packFilesInfo").textContent="Modification de : "+pack.title+". "+(pack.cover_path?"La couverture actuelle sera conservée si tu n'en choisis pas une nouvelle.":"Aucune couverture enregistrée.");$("packFilesInfo").classList.remove("hidden");renderPackChoices(items.map(x=>x.ebook_id));$("packForm").scrollIntoView({behavior:"smooth",block:"start"});}
 async function deletePack(pack){if(!confirm("Supprimer définitivement le pack « "+pack.title+" » ?"))return;try{const {error}=await client.from("packs").delete().eq("id",pack.id);if(error)throw error;if(pack.cover_path)await client.storage.from("ebooks").remove([pack.cover_path]);await loadAdminPacks();await loadPublicPacks();}catch(error){alert("Suppression impossible : "+error.message)}}
-function resetBookForm(){ $("bookForm").classList.add("hidden");$("bookForm").reset();$("bookId").value="";$("formTitle").textContent="Ajouter un ebook";$("saveBookBtn").textContent="Enregistrer l'ebook";$("formMessage").classList.add("hidden");$("bookFilesInfo").classList.add("hidden");$("bookFilesInfo").textContent=""}
-function editBook(book){resetBookForm();$("bookForm").classList.remove("hidden");$("bookId").value=book.id;$("bookTitle").value=book.title;$("bookDescription").value=book.description||"";$("bookPrice").value=book.price;$("published").checked=book.is_published;$("formTitle").textContent="Modifier l'ebook existant";$("saveBookBtn").textContent="Enregistrer les modifications";$("bookFilesInfo").textContent="Modification de : "+book.title+". "+(book.cover_path?"Couverture actuelle conservée. ":"Aucune couverture enregistrée. ")+(book.pdf_path?"PDF actuel conservé.":"Aucun PDF enregistré.")+" Laisse les champs de fichiers vides pour garder les fichiers actuels.";$("bookFilesInfo").classList.remove("hidden");$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})}
+function resetBookForm(){ $("bookForm").classList.add("hidden");$("bookForm").reset();$("bookId").value="";$("formTitle").textContent="Ajouter un ebook";$("saveBookBtn").textContent="Enregistrer l'ebook";$("formMessage").classList.add("hidden");$("bookFilesInfo").classList.add("hidden");$("bookFilesInfo").textContent="";$("bookCoverPreview").removeAttribute("src");$("bookCoverPreview").classList.add("hidden");$("bookCoverPlaceholder").classList.remove("hidden");$("bookPreviewTitle").textContent="Titre de votre ebook";$("bookPreviewDescription").textContent="Votre description apparaîtra ici.";$("bookPreviewPrice").textContent=euro(0);$("bookPdfPreview").lastElementChild.textContent="Aucun fichier sélectionné";if(bookPreviewObjectUrl){URL.revokeObjectURL(bookPreviewObjectUrl);bookPreviewObjectUrl=null;}}
+async function editBook(book){resetBookForm();$("bookForm").classList.remove("hidden");$("bookId").value=book.id;$("bookTitle").value=book.title;$("bookDescription").value=book.description||"";$("bookPrice").value=book.price;$("published").value=String(book.is_published);$("formTitle").textContent="Modifier l'ebook existant";$("saveBookBtn").textContent="Enregistrer les modifications";$("bookFilesInfo").textContent="Modification de : "+book.title+". "+(book.cover_path?"Couverture actuelle conservée. ":"Aucune couverture enregistrée. ")+(book.pdf_path?"PDF actuel conservé.":"Aucun PDF enregistré.")+" Laisse les champs de fichiers vides pour garder les fichiers actuels.";$("bookFilesInfo").classList.remove("hidden");$("bookPreviewTitle").textContent=book.title;$("bookPreviewDescription").textContent=book.description||"Aucune description renseignée.";$("bookPreviewPrice").textContent=euro(book.price);$("bookPdfPreview").lastElementChild.textContent=book.pdf_path?"PDF déjà associé — conservé":"Aucun PDF associé";if(book.cover_path){const url=await getCoverUrl(book.cover_path);if(url){$("bookCoverPreview").src=url;$("bookCoverPreview").classList.remove("hidden");$("bookCoverPlaceholder").classList.add("hidden");}}$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})}
 async function uploadFile(file,path){const {data,error}=await client.storage.from("ebooks").upload(path,file,{upsert:true,contentType:file.type});if(error)throw error;return data.path}
 async function customerSignIn(){const email=$("customerEmail").value.trim(),password=$("customerPassword").value;if(!email||!password){showStatus($("customerMessage"),"Saisis ton adresse e-mail et ton mot de passe pour te connecter.","err");return;}const btn=$("customerLogin");btn.disabled=true;showStatus($("customerMessage"),"Connexion en cours...");try{const {data,error}=await client.auth.signInWithPassword({email,password});if(error){const message=error.message==="Invalid login credentials"?"Identifiants incorrects. Vérifie ton adresse e-mail et ton mot de passe, ou utilise « Mot de passe oublié ? » si tu ne retrouves plus ton mot de passe.":"Connexion impossible : "+error.message;showStatus($("customerMessage"),message,"err");return;}await checkAdmin(data.session);showStatus($("customerMessage"),"Connexion réussie !","ok");}finally{btn.disabled=false;}}
 async function customerSignUp(){showStatus($("customerMessage"),"Création du compte en cours...");const email=$("customerEmail").value.trim(),password=$("customerPassword").value,name=$("customerName").value.trim();if(!email){showStatus($("customerMessage"),"Saisis ton adresse e-mail.","err");return;}if(password.length<8){showStatus($("customerMessage"),"Choisis un mot de passe d’au moins 8 caractères.","err");return;}const redirectTo=window.location.origin+"/#compte";const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:redirectTo,data:{full_name:name}}});if(error){showStatus($("customerMessage"),"Création impossible : "+error.message,"err");return;}if(data.session){await checkAdmin(data.session);showStatus($("customerMessage"),"Ton compte est créé et tu es connecté.","ok");}else{showStatus($("customerMessage"),"Compte créé. Vérifie ta boîte e-mail pour confirmer ton adresse. Le lien te ramènera sur NATHBOOK.","ok");}}
@@ -404,6 +448,11 @@ $("adminGoPromos").addEventListener("click",()=> $("adminPromosTitle").scrollInt
 $("newPackBtn").addEventListener("click",()=>{resetPackForm();$("packForm").classList.remove("hidden");renderPackChoices();$("packForm").scrollIntoView({behavior:"smooth",block:"start"})});
 $("cancelPackBtn").addEventListener("click",resetPackForm);
 $("packForm").addEventListener("submit",async event=>{event.preventDefault();const save=$("savePackBtn");save.disabled=true;try{const id=$("packId").value||crypto.randomUUID(),selected=[...$("packChoices").querySelectorAll("input:checked")].map(x=>x.value),cover=$("packCover").files[0];if(!selected.length)throw new Error("Choisis au moins un ebook pour ce pack.");if(cover&&!("image/jpeg,image/png,image/webp".split(",").includes(cover.type)))throw new Error("La couverture doit être JPG, PNG ou WEBP.");const existing=currentPacks.find(p=>p.id===id);if($("packId").value&&!existing)throw new Error("Impossible de retrouver ce pack. Actualise la page et réessaie : aucun nouveau pack ne sera créé.");let coverPath=existing?.cover_path||null;if(cover)coverPath=await uploadFile(cover,"covers/pack-"+id+"-"+Date.now()+"-"+cover.name.replace(/[^a-zA-Z0-9._-]/g,"_"));const payload={title:$("packTitle").value.trim(),description:$("packDescription").value.trim(),price:Number($("packPrice").value),cover_path:coverPath,is_published:$("packPublished").checked};if(!payload.title)throw new Error("Le nom du pack est obligatoire.");const query=existing?client.from("packs").update(payload).eq("id",id):client.from("packs").insert({id,...payload});const {data:savedPack,error}=await query.select("id").single();if(error)throw error;if(!savedPack)throw new Error("L’enregistrement du pack n’a pas été confirmé.");const removed=await client.from("pack_ebooks").delete().eq("pack_id",id);if(removed.error)throw removed.error;const links=await client.from("pack_ebooks").insert(selected.map((ebook_id,position)=>({pack_id:id,ebook_id,position})));if(links.error)throw links.error;resetPackForm();await loadAdminPacks();await loadPublicPacks();}catch(error){showStatus($("packMessage"),"Erreur : "+error.message,"err");console.error(error)}finally{save.disabled=false}});
+$("bookTitle").addEventListener("input",()=>{$("bookPreviewTitle").textContent=$("bookTitle").value.trim()||"Titre de votre ebook"});
+$("bookDescription").addEventListener("input",()=>{$("bookPreviewDescription").textContent=$("bookDescription").value.trim()||"Votre description apparaîtra ici."});
+$("bookPrice").addEventListener("input",()=>{$("bookPreviewPrice").textContent=$("bookPrice").value?euro($("bookPrice").value):euro(0)});
+$("coverFile").addEventListener("change",()=>{const file=$("coverFile").files[0];if(!file)return;if(bookPreviewObjectUrl)URL.revokeObjectURL(bookPreviewObjectUrl);bookPreviewObjectUrl=URL.createObjectURL(file);$("bookCoverPreview").src=bookPreviewObjectUrl;$("bookCoverPreview").classList.remove("hidden");$("bookCoverPlaceholder").classList.add("hidden")});
+$("pdfFile").addEventListener("change",()=>{$("bookPdfPreview").lastElementChild.textContent=$("pdfFile").files[0]?.name||"Aucun fichier sélectionné"});
 $("newBookBtn").addEventListener("click",()=>{resetBookForm();$("bookForm").classList.remove("hidden");$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})});
 $("cancelEditBtn").addEventListener("click",resetBookForm);
 $("bookForm").addEventListener("submit",async event=>{
@@ -419,7 +468,7 @@ $("bookForm").addEventListener("submit",async event=>{
   if(cover)coverPath=await uploadFile(cover,"covers/"+id+"-"+Date.now()+"-"+cover.name.replace(/[^a-zA-Z0-9._-]/g,"_"));
   if(pdf)pdfPath=await uploadFile(pdf,"pdf/"+id+"-"+Date.now()+".pdf");
   if(!existing&&!pdfPath)throw new Error("Ajoute le fichier PDF de cet ebook.");
-  const payload={title,slug:slugify(title)+"-"+id.slice(0,8),description:$("bookDescription").value.trim(),price:Number($("bookPrice").value),cover_path:coverPath,pdf_path:pdfPath,is_published:$("published").checked,updated_at:new Date().toISOString()};
+  const payload={title,slug:slugify(title)+"-"+id.slice(0,8),description:$("bookDescription").value.trim(),price:Number($("bookPrice").value),cover_path:coverPath,pdf_path:pdfPath,is_published:$("published").value==="true",updated_at:new Date().toISOString()};
   const query=existing?client.from("ebooks").update(payload).eq("id",id).select("id").single():client.from("ebooks").insert({id,...payload}).select("id").single();
   const {data:savedBook,error}=await query;if(error)throw error;if(!savedBook)throw new Error("L’enregistrement n’a pas été confirmé.");
   showStatus($("formMessage"),"Ebook enregistré avec succès. Les fichiers sont stockés dans le bucket privé.","ok");
