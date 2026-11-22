@@ -286,7 +286,8 @@ async function deleteBook(book){
   await loadAdminBooks();await loadPublicBooks();
  }catch(error){alert("Suppression impossible : "+error.message)}
 }
-client.auth.onAuthStateChange((event,session)=>{if(event==="PASSWORD_RECOVERY"){isPasswordRecovery=true;if(location.hash!=="#compte")location.hash="#compte";}setTimeout(()=>checkAdmin(session),0)});\n(async()=>{renderCart();await loadPublicBooks();await loadPublicPacks();const {data}=await client.auth.getSession();await checkAdmin(data.session)})();
+client.auth.onAuthStateChange((event,session)=>{if(event==="PASSWORD_RECOVERY"){isPasswordRecovery=true;if(location.hash!=="#compte")location.hash="#compte";}setTimeout(()=>checkAdmin(session),0)});
+(async()=>{renderCart();await loadPublicBooks();await loadPublicPacks();const {data}=await client.auth.getSession();await checkAdmin(data.session)})();
 </script>
 </body>
 </html>
