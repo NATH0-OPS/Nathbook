@@ -491,7 +491,7 @@ async function checkAdmin(session){
  authPanel.classList.add("hidden");adminPanel.classList.remove("hidden");
  $("adminNavLink").classList.remove("hidden");
  $("adminWelcome").textContent="Connecté en tant qu'administrateur : "+session.user.email;
- if(location.hash!=="#administration")location.hash="#administration";
+ // Ne pas forcer l’ouverture de l’administration : le compte admin peut aussi naviguer comme un client.
  await loadAdminBooks();await loadAdminPacks();await loadAdminPromos();
 }
 function resetPromoForm(){const f=$("promoForm");f.classList.add("hidden");f.reset();$("promoId").value="";$("promoActive").checked=true;$("promoMessage").classList.add("hidden");$("savePromoBtn").textContent="Enregistrer le code";}
