@@ -273,6 +273,33 @@ footer{background:#203a32;padding:34px;color:#e7e2d8}
 .pack-choice-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#344b3d;font-size:13px}#packSelectedCount{padding:5px 10px;border-radius:999px;background:#eaf2e9;color:#42664b;font-size:11px;font-weight:750}.pack-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:12px;border:1px solid #e8e0d4;border-radius:15px;background:#f8f5ef}.pack-choice{display:flex;align-items:center;gap:9px;min-width:0;padding:11px 12px;border:1px solid #ece5da;border-radius:11px;background:#fffefa;color:#41483e;font-size:12px;cursor:pointer}.pack-choice span{overflow-wrap:anywhere}.pack-choice:has(input:checked){border-color:#9db49d;background:#edf4ec;color:#2e563b}.pack-choice input{width:16px;height:16px;flex:none}
 .pack-preview{position:sticky;top:24px;padding:17px;border:1px solid #e8e0d4;border-radius:19px;background:#fffefa;box-shadow:0 12px 30px #342b1b0b}.pack-preview-cover{display:grid;place-items:center;overflow:hidden;height:210px;margin:12px 0 16px;border-radius:13px;background:linear-gradient(145deg,#eee7da,#f8f5ee)}.pack-preview-cover img{width:100%;height:100%;object-fit:cover}#packCoverPlaceholder{display:grid;justify-items:center;gap:6px;color:#777b72}#packCoverPlaceholder span{color:#bd8957;font-size:30px}#packCoverPlaceholder strong{font:500 17px Georgia,serif;color:#344b3d}#packCoverPlaceholder small{font-size:11px}.pack-preview h4{margin:0 0 7px;color:#29483c;font:600 21px/1.3 Georgia,serif}.pack-preview>p{min-height:48px;margin:0;color:#777b72;font-size:12px;line-height:1.6}.pack-preview-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:15px 0;padding:13px 0;border-top:1px solid #eee7dc;border-bottom:1px solid #eee7dc}.pack-preview-meta span{color:#777b72;font-size:11px}.pack-preview-meta strong{color:#9a7049;font-size:20px}.pack-preview-list>strong{font:600 14px Georgia,serif;color:#344b3d}.pack-preview-list ul{margin:9px 0 0;padding-left:18px;color:#777b72;font-size:11px;line-height:1.8}
 @media(max-width:760px){.pack-editor-grid{grid-template-columns:1fr}.pack-preview{position:static;grid-row:1}.pack-preview-cover{height:190px}}@media(max-width:520px){.pack-editor-heading{align-items:flex-start;flex-direction:column}.pack-choices{grid-template-columns:1fr}.pack-preview{padding:14px}}
+
+/* Cartes premium des packs dans la boutique */
+#packs{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:stretch;gap:24px}
+.pack-card-premium{overflow:hidden;padding:0;display:flex;flex-direction:column;min-width:0;border-radius:22px;background:#fffefa;border:1px solid #e7dfd2;box-shadow:0 14px 36px #342b1b10}
+.pack-card-premium:hover{transform:translateY(-5px);box-shadow:0 22px 44px #342b1b1a}
+.pack-visual{height:220px;position:relative;overflow:hidden;background:linear-gradient(140deg,#e9e1d4,#f7f2e9)}
+.pack-cover{display:block;width:100%;height:100%;object-fit:cover}
+.pack-cover-placeholder{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;background:radial-gradient(circle at 50% 35%,#ffffffb8,transparent 48%),linear-gradient(135deg,#e9e2d5,#d9e2d8)}
+.pack-placeholder-mark{display:grid;place-items:center;width:62px;height:62px;border:1px solid #a98a68;border-radius:50%;font:500 30px Georgia,serif;color:#345044}
+.pack-placeholder-label{font-size:10px;font-weight:850;letter-spacing:2px;color:#526257}
+.pack-ribbon{position:absolute;top:16px;left:16px;padding:8px 12px;border-radius:999px;background:#263f34ed;color:#f7ead8;font-size:9px;font-weight:850;letter-spacing:1.5px}
+.pack-card-body{display:flex;flex:1;flex-direction:column;padding:22px}
+.pack-count{align-self:flex-start;padding:6px 10px;border-radius:999px;background:#edf3eb;color:#42614a;font-size:10px;font-weight:850;letter-spacing:1px}
+.pack-card-premium h3{margin:14px 0 7px;font:600 25px/1.2 Georgia,serif;color:#263f34}
+.pack-card-premium .pack-description{margin:0;color:#77786f;font-size:13px;line-height:1.7;min-height:44px}
+.pack-contents{margin-top:20px;padding:16px;border:1px solid #ece5d9;border-radius:14px;background:#faf8f2}
+.pack-contents strong{display:block;margin-bottom:10px;color:#34483b;font:600 14px Georgia,serif}
+.pack-contents ul{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.pack-contents li{position:relative;padding-left:22px;color:#676b61;font-size:12px;line-height:1.45}
+.pack-contents li:before{content:"✓";position:absolute;left:0;top:0;color:#9a754f;font-weight:900}
+.pack-card-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto;padding-top:20px}
+.pack-price-label{display:block;color:#858176;font-size:10px;font-weight:750;letter-spacing:.8px;text-transform:uppercase}
+.pack-card-premium .pack-price{margin:3px 0 0!important;color:#987047!important;font-size:25px!important;font-weight:850}
+.pack-card-footer button{flex:0 0 auto;padding:12px 17px;font-size:12px}
+.pack-empty{grid-column:1/-1;padding:28px;border:1px dashed #d8cdbb;border-radius:16px;text-align:center;color:#77786f;background:#fffefa}
+@media(max-width:560px){#packs{grid-template-columns:1fr;gap:17px}.pack-visual{height:195px}.pack-card-body{padding:19px}.pack-card-footer{align-items:flex-start;flex-direction:column}.pack-card-footer button{width:100%}}
+
 </style>
 </head>
 <body>
@@ -367,10 +394,30 @@ showPage();
 async function getCoverUrl(path){if(!path)return "";const {data,error}=await client.storage.from("ebooks").createSignedUrl(path,3600);if(error){console.warn(error);return ""}return data.signedUrl}
 async function loadPublicPacks(){
  const box=$("packs");box.replaceChildren();
- try{const {data,error}=await client.from("packs").select("id,title,description,price,cover_path,pack_ebooks(position,ebooks(title))").eq("is_published",true).order("created_at",{ascending:false});if(error)throw error;
- if(!data?.length){box.append(make("p","Nos packs arrivent bientôt."));return;}
- for(const pack of data){const card=make("article",undefined,"pack-card");if(pack.cover_path){const url=await getCoverUrl(pack.cover_path);if(url){const img=make("img");img.className="cover";img.src=url;img.alt="Couverture de "+pack.title;card.append(img)}}card.append(make("h3",pack.title),make("p",pack.description||""));const ul=make("ul");(pack.pack_ebooks||[]).sort((a,b)=>a.position-b.position).forEach(item=>{if(item.ebooks?.title)ul.append(make("li",item.ebooks.title))});if(ul.childElementCount)card.append(ul);card.append(make("p",Number(pack.price).toFixed(2)+" €","price"));const add=make("button","Ajouter au panier");add.type="button";add.addEventListener("click",()=>addToCart({key:"pack:"+pack.id,id:pack.id,type:"pack",title:pack.title,price:Number(pack.price)}));card.append(add);box.append(card);}
- }catch(error){console.error("Chargement des packs publics :",error);box.append(make("p","Les packs ne sont pas disponibles pour le moment."))}
+ try{
+  const {data,error}=await client.from("packs").select("id,title,description,price,cover_path,pack_ebooks(position,ebooks(title))").eq("is_published",true).order("created_at",{ascending:false});
+  if(error)throw error;
+  if(!data?.length){box.append(make("p","Nos premières offres groupées arrivent bientôt. Reviens découvrir nos packs très prochainement.","pack-empty"));return;}
+  for(const pack of data){
+   const items=(pack.pack_ebooks||[]).filter(item=>item.ebooks?.title).sort((a,b)=>(a.position??0)-(b.position??0));
+   const card=make("article",undefined,"pack-card pack-card-premium");
+   const visual=make("div",undefined,"pack-visual");
+   if(pack.cover_path){const url=await getCoverUrl(pack.cover_path);if(url){const img=make("img");img.className="pack-cover";img.src=url;img.alt="Couverture du pack "+pack.title;visual.append(img);}}
+   if(!visual.childElementCount){const placeholder=make("div",undefined,"pack-cover-placeholder");placeholder.append(make("span","N.","pack-placeholder-mark"),make("span","SÉLECTION NATHBOOK","pack-placeholder-label"));visual.append(placeholder);}
+   visual.append(make("span","OFFRE GROUPÉE","pack-ribbon"));
+   const body=make("div",undefined,"pack-card-body");
+   body.append(make("span",items.length+" EBOOK"+(items.length>1?"S":""),"pack-count"));
+   body.append(make("h3",pack.title),make("p",pack.description||"Une sélection d'ebooks réunis dans une seule offre.","pack-description"));
+   const contents=make("div",undefined,"pack-contents");contents.append(make("strong","Dans ce pack"));
+   const list=make("ul");
+   if(items.length){items.forEach(item=>list.append(make("li",item.ebooks.title)));}else{list.append(make("li","Contenu bientôt disponible"));}
+   contents.append(list);body.append(contents);
+   const footer=make("div",undefined,"pack-card-footer"),priceBlock=make("div",undefined,"pack-price-block");
+   priceBlock.append(make("span","Prix du pack","pack-price-label"),make("p",Number(pack.price).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" €","pack-price"));
+   const add=make("button","Découvrir le pack");add.type="button";add.addEventListener("click",()=>addToCart({key:"pack:"+pack.id,id:pack.id,type:"pack",title:pack.title,price:Number(pack.price)}));
+   footer.append(priceBlock,add);body.append(footer);card.append(visual,body);box.append(card);
+  }
+ }catch(error){console.error("Chargement des packs publics :",error);box.append(make("p","Les packs ne sont pas disponibles pour le moment.","pack-empty"));}
 }
 async function renderAuthorBooks(){
  const box=$("authorBooks");if(!box)return;box.replaceChildren();
