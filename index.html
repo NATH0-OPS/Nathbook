@@ -94,6 +94,100 @@ button:hover{background:#3c594d}
 #customerPanel>#customerLibrary,#customerPanel>#customerOrders{background:#fffdfa;border-color:#e5ddd0}
 @media(max-width:850px){.home-books{grid-template-columns:repeat(2,minmax(0,1fr))}.home-book-cover{height:250px}}
 @media(max-width:560px){.hero{padding:58px 5% 36px}.home-shelf-wrap{margin-top:44px;padding:20px 14px;border-radius:17px}.shelf-heading{align-items:flex-start;flex-direction:column}.home-books{gap:12px}.home-book{padding:9px}.home-book-cover{height:210px}.home-book h4{font-size:14px}.cover{height:250px}}
+
+/* NATHBOOK — refonte visuelle premium, inspirée des boutiques de produits numériques */
+:root{
+ --navy:#203a32;--navy2:#2e5145;--cream:#f7f4ed;--sand:#eee7da;
+ --gold:#bd8957;--ink:#252a25;--muted:#777b72;--line:#e6e0d5;--white:#fffefa;
+ --green:#eaf3ec;--red:#fff0ed;
+}
+body{font-family:Inter,"Segoe UI",system-ui,sans-serif;background:#f7f4ed;color:#252a25;letter-spacing:-.01em}
+header{padding:14px max(5%,calc((100% - 1220px)/2));background:rgba(31,56,48,.97);border-bottom:1px solid #ffffff18;box-shadow:0 10px 34px #1c33251c}
+header h1{font-family:Georgia,serif;font-size:27px;letter-spacing:3px;font-weight:600}
+header nav{gap:8px;align-items:center}
+header nav a{padding:10px 15px;border-radius:999px;font-size:13px;transition:background .2s,color .2s,transform .2s}
+header nav a:hover{background:#ffffff16;color:#f0c99b;transform:translateY(-1px)}
+nav a[aria-current="page"]{background:#ffffff17;color:#f0c99b;text-decoration:none}
+.hero{background:radial-gradient(ellipse at 78% 5%,#b98a5a35 0,transparent 34%),linear-gradient(130deg,#1e382f,#345246 58%,#243c33)}
+.hero h2,.section-title{font-family:Georgia,"Times New Roman",serif}
+.hero h2{font-weight:500;letter-spacing:-1.8px}
+.home-button{border-radius:999px;padding:14px 25px;min-height:50px;transition:transform .2s,box-shadow .2s,background .2s}
+.home-button:hover{transform:translateY(-2px);box-shadow:0 12px 25px #101e1845}
+.home-button-light{border-radius:999px}
+section{padding-top:72px;padding-bottom:72px}
+.section-title{font-size:clamp(30px,4vw,40px);letter-spacing:-.8px}
+.intro{line-height:1.75}
+.books{gap:22px}
+.book,.pack-card{padding:14px;border-radius:19px;background:#fffefa;border:1px solid #e8e1d5;box-shadow:0 9px 28px #342b1b0b}
+.book:hover,.pack-card:hover{transform:translateY(-5px);box-shadow:0 18px 38px #342b1b18}
+.cover{height:300px;border-radius:13px;background:linear-gradient(145deg,#eee7da,#f8f5ee);box-shadow:none}
+.book h3,.pack-card h3{font-family:Georgia,serif;font-size:20px;line-height:1.3;margin:16px 5px 8px}
+.book p,.pack-card p{line-height:1.65;margin-left:5px;margin-right:5px}
+.price{margin:15px 5px 12px!important;color:#9a7049!important;font-size:22px!important}
+button{border-radius:999px;padding:12px 20px;background:#29483c;box-shadow:0 5px 13px #203a321c;letter-spacing:.01em;transition:transform .18s,box-shadow .18s,background .18s}
+button:hover{background:#3b6251;transform:translateY(-2px);box-shadow:0 9px 20px #203a3226}
+button.secondary{background:#f0ece3;color:#30463a;border:1px solid #e2dacd;box-shadow:none}
+button.secondary:hover{background:#e8e0d3}
+button.danger{background:#fff0ed;color:#a34338;border:1px solid #f0d5cf;box-shadow:none}
+button.danger:hover{background:#f9ded8}
+button:focus-visible,a:focus-visible{outline:3px solid #c99a6c;outline-offset:3px}
+.panel{border-radius:22px;border:1px solid #e8e1d5;background:#fffefa;box-shadow:0 16px 44px #342b1b0d}
+#administration{background:radial-gradient(ellipse at 8% 0%,#e1d7c6 0,transparent 36%),linear-gradient(180deg,#f0eadf,#f7f4ed);border-top:1px solid #e2d9ca}
+#administration .admin-wrap{max-width:1120px}
+#administration .section-title{text-align:left;font-size:clamp(34px,4vw,46px);margin-bottom:5px}
+#administration .intro{text-align:left;margin:0;max-width:760px}
+#authPanel{max-width:590px;margin:34px auto;padding:clamp(24px,4vw,42px);border-radius:24px}
+#authPanel:before{content:"ESPACE PRIVÉ · NATHBOOK";display:block;margin-bottom:18px;color:#a77a50;font-size:10px;font-weight:850;letter-spacing:2px}
+#authPanel button{width:100%;min-height:50px}
+#adminPanel{margin-top:30px;padding:clamp(20px,3vw,38px);border-radius:26px;background:#fffefa;border:1px solid #e7dfd2;box-shadow:0 20px 55px #2e3e3212}
+#adminWelcome{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;background:#edf4ed;color:#315744;font-size:13px;font-weight:700}
+#adminWelcome:before{content:"";width:8px;height:8px;border-radius:50%;background:#6e9a72;box-shadow:0 0 0 4px #6e9a7220}
+#adminPanel>.admin-actions{padding:17px;margin:20px 0 28px;border-radius:17px;background:#f6f3ec;border:1px solid #ebe4d8}
+#adminPanel>h3{display:flex;align-items:center;gap:12px;margin:34px 0 12px;padding:0 0 12px;border:0;font:600 25px Georgia,serif;color:#29483c}
+#adminPanel>h3:after{content:"";height:1px;flex:1;background:#e8e0d4}
+#adminBooks,#adminPacks,#adminPromos{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:16px}
+.admin-book{min-height:130px;padding:18px;border:1px solid #e9e2d7;border-radius:17px;background:linear-gradient(145deg,#fffefa,#faf7f0);box-shadow:0 5px 18px #342b1b08;transition:transform .18s,box-shadow .18s,border .18s}
+.admin-book:hover{transform:translateY(-2px);border-color:#d8c8b2;box-shadow:0 12px 25px #342b1b10}
+.admin-book strong{display:block;color:#2b4036;font-family:Georgia,serif;font-size:17px;line-height:1.35}
+.admin-book small{font-size:12px;line-height:1.65;color:#77786f}
+.admin-book-actions{gap:8px}
+.admin-book-actions button{font-size:12px;padding:10px 14px}
+#bookForm,#packForm,#promoForm{margin:22px 0 28px;padding:clamp(20px,3vw,34px);border:1px solid #e6ddcf;border-radius:23px;background:linear-gradient(145deg,#fffefa,#f9f6ef);box-shadow:0 15px 38px #342b1b0c}
+#formTitle,#packFormTitle{font:500 29px Georgia,serif;color:#29483c;margin:0 0 6px}
+#bookForm:before{content:"FICHE PRODUIT";display:block;color:#ad8056;font-size:10px;font-weight:850;letter-spacing:2px;margin-bottom:5px}
+#packForm:before{content:"OFFRE GROUPÉE";display:block;color:#ad8056;font-size:10px;font-weight:850;letter-spacing:2px;margin-bottom:5px}
+#promoForm:before{content:"AVANTAGE CLIENT";display:block;color:#ad8056;font-size:10px;font-weight:850;letter-spacing:2px;margin-bottom:5px}
+form{gap:17px}
+label{gap:8px;color:#3c4b40;font-size:13px;font-weight:750}
+input,textarea{border:1px solid #ded8cc;border-radius:12px;padding:14px 15px;background:#fffefa;transition:border .18s,box-shadow .18s}
+input:focus,textarea:focus{border-color:#9aaf9e;box-shadow:0 0 0 4px #76977e20}
+input[type="file"]{padding:10px;background:#f7f4ed;border:1px dashed #cfc4b4;color:#687167;font-size:12px}
+input[type="file"]::file-selector-button{border:0;border-radius:999px;padding:9px 14px;margin-right:12px;background:#e6eee6;color:#315442;font-weight:750;cursor:pointer}
+input[type="checkbox"]{accent-color:#315442}
+textarea{min-height:125px;line-height:1.6}
+.row{gap:16px}
+.check{display:flex;align-items:center;padding:13px 15px;border:1px solid #e7e0d4;border-radius:12px;background:#f7f4ed}
+.pack-choices{padding:16px;border-radius:15px;border:1px solid #e6dfd3;background:#f8f5ef;gap:10px}
+.pack-choice{padding:10px 12px;border-radius:10px;background:#fffefa;border:1px solid #ece5da}
+.status{border-radius:13px;line-height:1.6}
+#compte .panel{background:#fffefa}
+#panier .panel{border-radius:20px}
+footer{background:#203a32;padding:34px;color:#e7e2d8}
+@media(max-width:700px){
+ header{padding:14px 5%;align-items:center}
+ header h1{font-size:24px}
+ header nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:7px}
+ header nav a{padding:10px 8px}
+ section{padding:48px 5%}
+ #administration .section-title{text-align:center}
+ #administration .intro{text-align:center}
+ #adminPanel>.admin-actions{padding:12px}
+ #adminPanel>.admin-actions button{flex:1 1 100%}
+ #bookForm,#packForm,#promoForm{padding:20px 16px}
+ #formTitle,#packFormTitle{font-size:25px}
+ .cover{height:260px}
+}
+
 </style>
 </head>
 <body>
