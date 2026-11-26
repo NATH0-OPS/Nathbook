@@ -510,6 +510,14 @@ function showPage(){
  let page=allowed.includes(requested)?requested:(params.get("welcome")==="1"?"confirmation":"accueil");
  if(payment==="success")page="payment-confirmation";
  if(payment==="cancel")page="payment-cancel";
+
+ // Le paramètre Stripe ne doit agir qu'au retour initial.
+ // On le retire de l'adresse pour que les liens du site fonctionnent ensuite.
+ if(payment==="success"||payment==="cancel"){
+  const cleanUrl=location.pathname+location.hash;
+  history.replaceState(null,"",cleanUrl);
+ }
+
  document.querySelectorAll(".page-view").forEach(el=>el.classList.toggle("active",el.id===page));
  document.querySelectorAll("header nav a").forEach(link=>{
   if(link.getAttribute("href")==="#"+page)link.setAttribute("aria-current","page");
