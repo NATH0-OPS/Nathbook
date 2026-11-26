@@ -526,6 +526,19 @@ function showPage(){
  window.scrollTo({top:0,behavior:"auto"});
 }
 window.addEventListener("hashchange",showPage);
+
+// Navigation interne renforcée : les liens des pages de résultat
+// changent la page explicitement, même si le hash est déjà sélectionné.
+document.addEventListener("click",event=>{
+ const link=event.target.closest('a[href^="#"]');
+ if(!link)return;
+ const target=link.getAttribute("href");
+ if(!target||target==="#")return;
+ event.preventDefault();
+ if(location.hash!==target)location.hash=target;
+ showPage();
+});
+
 showPage();
 async function getCoverUrl(path){if(!path)return "";const {data,error}=await client.storage.from("ebooks").createSignedUrl(path,3600);if(error){console.warn(error);return ""}return data.signedUrl}
 async function loadPublicPacks(){
