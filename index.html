@@ -426,7 +426,7 @@ header nav .admin-nav-link:hover{background:#e5c18c30;color:#fff0d9}
 </style>
 </head>
 <body>
-<header><h1>NATHBOOK</h1><nav aria-label="Navigation principale"><a href="#accueil">Accueil</a><a href="#boutique">Boutique</a><a href="#panier">Mon panier</a><a href="#compte">Mon compte</a><a href="#administration" id="adminNavLink" class="admin-nav-link hidden" aria-label="Accéder à l’administration">Administration</a></nav></header>
+<header><h1>NATHBOOK</h1><nav aria-label="Navigation principale"><a href="#accueil">Accueil</a><a href="#boutique">Boutique</a><a href="#panier" class="cart-nav-link">Mon panier <span id="cartCount" class="cart-count" aria-label="Articles dans le panier">0</span></a><a href="#compte">Mon compte</a><a href="#administration" id="adminNavLink" class="admin-nav-link hidden" aria-label="Accéder à l’administration">Administration</a></nav></header>
 <section class="hero page-view" id="accueil"><div class="hero-copy"><span class="eyebrow">LA LIBRAIRIE NUMÉRIQUE</span><h2>Des idées à lire.<br>Des envies à découvrir.</h2><p>Explore une sélection de livres numériques pour apprendre, créer et avancer à ton rythme.</p><div class="home-actions"><a class="home-button" href="#boutique">Explorer la boutique</a><a class="home-button home-button-light" href="#compte">Mon espace</a></div></div><div class="home-shelf-wrap"><div class="shelf-heading"><div><span class="eyebrow">LA SÉLECTION NATHBOOK</span><h3>À découvrir en ce moment</h3></div><a href="#boutique">Voir toute la boutique →</a></div><div id="homeBooks" class="home-books"><p class="home-empty">Nos premières lectures arrivent bientôt.</p></div></div></section>
 <section class="page-view" id="boutique"><h2 class="section-title">Notre boutique</h2><p class="intro">Découvrez nos livres numériques.</p><div id="status" class="status">Connexion à la boutique en cours...</div><div class="books" id="books"></div><h2 class="section-title" style="margin-top:48px">Nos packs</h2><p class="intro">Plusieurs ebooks réunis dans une même offre.</p><div class="books" id="packs"></div></section><section class="page-view" id="auteur-nath"><div class="admin-wrap"><a href="#boutique" class="author-back-link">← Retour à la boutique</a><div class="author-profile"><span class="author-avatar">N</span><div><span class="eyebrow">AUTEUR NATHBOOK</span><h2>Les ebooks de @Nath</h2><p>Retrouve toutes les publications de Nath sur NATHBOOK.</p></div></div><div id="authorBooks" class="books"><p class="intro">Chargement des publications...</p></div></div></section>
 <section class="page-view" id="panier"><div class="admin-wrap"><h2 class="section-title">Mon panier</h2><p class="intro">Retrouve ici les ebooks et les packs que tu souhaites acheter.</p><div id="cartItems" class="panel" style="margin-top:24px"><p class="intro">Ton panier est vide pour le moment.</p></div><div class="panel" style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><strong>Total provisoire : <span id="cartTotal">0,00 €</span></strong><button id="checkoutButton" type="button" disabled>Continuer vers le paiement</button></div><p id="cartNotice" class="intro" style="margin-top:12px;font-size:13px">Le paiement sécurisé sera activé dans la prochaine étape. Aucun débit n'est possible pour le moment.</p></div></section>
@@ -494,7 +494,26 @@ function updateAdminStats(){
 }
 function euro(value){return Number(value||0).toLocaleString("fr-FR",{style:"currency",currency:"EUR"});}
 function saveCart(){try{localStorage.setItem("nathbook_cart",JSON.stringify(cart));}catch(e){console.warn("Panier non sauvegardé sur cet appareil",e)}}
-function renderCart(){const box=$("cartItems");box.replaceChildren();if(!cart.length){box.append(make("p","Ton panier est vide pour le moment.","intro"));$("cartTotal").textContent=euro(0);$("checkoutButton").disabled=true;return;}let total=0;cart.forEach(item=>{total+=Number(item.price);const row=make("div",undefined,"admin-book"),info=make("div"),actions=make("div",undefined,"admin-book-actions");info.append(make("strong",item.title),make("small",(item.type==="pack"?"Pack":"Ebook")+" · "+euro(item.price)));const remove=make("button","Retirer","secondary");remove.type="button";remove.addEventListener("click",()=>{cart=cart.filter(x=>x.key!==item.key);saveCart();renderCart()});actions.append(remove);row.append(info,actions);box.append(row)});$("cartTotal").textContent=euro(total);$("checkoutButton").disabled=false;}
+function renderCart(){
+ const box=$("cartItems");box.replaceChildren();
+ const count=$("cartCount");if(count)count.textContent=String(cart.length);
+ if(!cart.length){
+  const empty=make("div",undefined,"cart-empty");
+  empty.append(make("span","N.","cart-empty-mark"),make("h3","Ton panier est encore vide"),make("p","Découvre les ebooks et les packs de NATHBOOK, puis ajoute tes prochaines lectures ici."));
+  const link=make("a","Explorer la boutique","cart-empty-link");link.href="#boutique";empty.append(link);box.append(empty);
+  $("cartTotal").textContent=euro(0);$("checkoutButton").disabled=true;return;
+ }
+ let total=0;
+ cart.forEach(item=>{
+  total+=Number(item.price);
+  const row=make("article",undefined,"cart-line"),cover=make("div","N.","cart-line-cover"),info=make("div",undefined,"cart-line-info"),actions=make("div",undefined,"cart-line-actions");
+  const kind=item.type==="pack"?"Pack numérique":"Livre numérique";
+  info.append(make("span",kind,"cart-line-kind"),make("h3",item.title),make("p","Lecture numérique · Disponible après confirmation du paiement"),make("strong",euro(item.price),"cart-line-price"));
+  const remove=make("button","Retirer du panier","secondary cart-remove");remove.type="button";remove.addEventListener("click",()=>{cart=cart.filter(x=>x.key!==item.key);saveCart();renderCart()});
+  actions.append(remove);row.append(cover,info,actions);box.append(row);
+ });
+ $("cartTotal").textContent=euro(total);$("checkoutButton").disabled=false;
+}
 function addToCart(item){if(cart.some(x=>x.key===item.key)){const notice=$("cartNotice");notice.textContent="Cet article est déjà dans ton panier.";return;}cart.push(item);saveCart();renderCart();$("cartNotice").textContent="Article ajouté au panier. Tu peux maintenant continuer vers le paiement.";}
 async function startCheckout(){const button=$("checkoutButton");button.disabled=true;button.textContent="Préparation du paiement…";try{const {data:{session},error:sessionError}=await client.auth.getSession();if(sessionError)throw sessionError;if(!session){$("cartNotice").textContent="Connecte-toi à ton compte NATHBOOK avant de payer.";location.hash="#compte";return;}const items=cart.map(item=>({id:item.id,type:item.type}));const res=await fetch(SUPABASE_URL+"/functions/v1/nathbook-create-checkout",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+session.access_token,"apikey":SUPABASE_KEY},body:JSON.stringify({items})});const result=await res.json();if(!res.ok||!result.url)throw new Error(result.error||"Impossible de préparer le paiement.");window.location.href=result.url;}catch(error){console.error("Paiement NATHBOOK :",error);$("cartNotice").textContent="Le paiement n’a pas pu être lancé : "+(error.message||"Erreur inconnue");}finally{button.textContent="Continuer vers le paiement";button.disabled=cart.length===0;}}
 try{const params=new URLSearchParams(location.search);if((params.get("payment")||params.get("paiement"))==="success"){cart=[];localStorage.removeItem("nathbook_cart");}else{const saved=JSON.parse(localStorage.getItem("nathbook_cart")||"[]");if(Array.isArray(saved))cart=saved.filter(x=>x&&typeof x.key==="string"&&typeof x.title==="string"&&Number.isFinite(Number(x.price)));}}catch(e){cart=[];}
@@ -793,3 +812,38 @@ client.auth.onAuthStateChange((event,session)=>{if(event==="PASSWORD_RECOVERY"){
 </script>
 </body>
 </html>
+<style>
+/* Étape boutique : panier client plus clair */
+.cart-nav-link{display:inline-flex;align-items:center;gap:8px}
+.cart-count{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#c99a6c;color:#203a32;font-size:11px;font-weight:850}
+#cartItems{overflow:hidden;padding:0;background:#fffefa;border:1px solid #e6e0d5;border-radius:20px}
+.cart-empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:42px 24px}
+.cart-empty-mark{display:grid;place-items:center;width:64px;height:64px;border-radius:20px;background:#f0ece3;color:#29483c;font:500 30px Georgia,serif}
+.cart-empty h3{margin:18px 0 6px;color:#29483c;font:500 27px Georgia,serif}
+.cart-empty p{max-width:420px;margin:0;color:#777b72;font-size:14px;line-height:1.75}
+.cart-empty-link{margin-top:22px;padding:12px 20px;border-radius:999px;background:#29483c;color:#fffefa;text-decoration:none;font-size:13px;font-weight:800}
+.cart-line{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:20px;padding:22px;border-bottom:1px solid #ece5da}
+.cart-line:last-child{border-bottom:0}
+.cart-line-cover{display:grid;place-items:center;width:72px;height:94px;border-radius:10px;background:linear-gradient(145deg,#e9e1d4,#f7f4ed);color:#29483c;font:500 27px Georgia,serif;box-shadow:0 5px 14px #342b1b10}
+.cart-line-info{min-width:0}
+.cart-line-kind{color:#a77a50;font-size:10px;font-weight:850;letter-spacing:1.3px;text-transform:uppercase}
+.cart-line-info h3{margin:5px 0;color:#29483c;font:600 20px/1.35 Georgia,serif;overflow-wrap:anywhere}
+.cart-line-info p{margin:0;color:#777b72;font-size:12px;line-height:1.6}
+.cart-line-price{display:block;margin-top:9px;color:#9a7049;font-size:18px}
+.cart-line-actions{display:flex;align-items:center}
+.cart-remove{white-space:nowrap;font-size:12px;padding:10px 14px}
+#panier .panel[style*="justify-content:space-between"]{padding:22px 26px;border:1px solid #e6e0d5;background:#fffefa;border-radius:18px}
+#panier .panel strong{color:#29483c;font:600 18px Georgia,serif}
+#cartTotal{color:#9a7049;font-size:25px}
+#checkoutButton{min-height:48px;padding:13px 23px}
+#cartNotice{padding:12px 16px;border-radius:12px;background:#eee7da;color:#686b61}
+@media(max-width:620px){
+ .cart-line{grid-template-columns:54px minmax(0,1fr);gap:13px;padding:16px}
+ .cart-line-cover{width:54px;height:74px}
+ .cart-line-info h3{font-size:17px}
+ .cart-line-actions{grid-column:2;justify-content:flex-start}
+ .cart-remove{padding:9px 13px}
+ #panier .panel[style*="justify-content:space-between"]{padding:18px}
+ #cartTotal{font-size:22px}
+}
+</style>
