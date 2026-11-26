@@ -468,7 +468,7 @@ header nav .admin-nav-link:hover{background:#e5c18c30;color:#fff0d9}
 <input type="hidden" id="bookId">
 <div class="product-form-grid"><div class="product-form-fields">
 <div class="form-step"><span>01</span><div><strong>Informations principales</strong><small>Le titre et la présentation de votre ebook.</small></div></div>
-<label>Titre de l'ebook<input id="bookTitle" maxlength="150" placeholder="Ex. : Mieux gérer son budget" required></label>
+<label>Titre de l'ebook<input id="bookTitle" maxlength="150" placeholder="Ex. : Mieux gérer son budget" required></label><label>Nom de l'auteur<input id="bookAuthor" maxlength="120" placeholder="Nath"></label>
 <label>Description<textarea id="bookDescription" maxlength="3000" rows="5" placeholder="Présentez le contenu, les bénéfices et ce que le lecteur va apprendre..."></textarea></label>
 <div class="row"><label>Prix de vente (€)<input id="bookPrice" type="number" min="0" step="0.25" placeholder="9,90" required></label><label>Visibilité<select id="published"><option value="false">Enregistrer en brouillon</option><option value="true">Publier dans la boutique</option></select></label></div>
 <div class="form-step"><span>02</span><div><strong>Fichiers du produit</strong><small>Ajoutez la couverture et le document PDF.</small></div></div>
@@ -584,27 +584,21 @@ async function getCoverUrl(path){if(!path)return "";const {data,error}=await cli
 async function loadPublicPacks(){
  const box=$("packs");box.replaceChildren();
  try{
-  const {data,error}=await client.from("packs").select("id,title,description,price,cover_path,pack_ebooks(position,ebooks(title))").eq("is_published",true).order("created_at",{ascending:false});
-  if(error)throw error;
+  const {data,error}=await client.from("packs").select("id,title,description,price,cover_path,pack_ebooks(position,ebooks(id,title,description,price,cover_path))").eq("is_published",true).order("created_at",{ascending:false});
+  if(error)throw error;currentPacks=data||[];
+  const homePreview=$("homePackPreview");if(homePreview){homePreview.replaceChildren();const featured=currentPacks[0];if(featured){for(const entry of (featured.pack_ebooks||[]).slice(0,3)){const book=entry.ebooks;if(!book)continue;const img=make("img");img.alt="Couverture de "+book.title;if(book.cover_path){const url=await getCoverUrl(book.cover_path);if(url)img.src=url;}if(!img.src)img.style.display="none";homePreview.append(img);}if(!homePreview.childElementCount)homePreview.append(make("div","N.","home-pack-placeholder"));}else homePreview.append(make("div","N.","home-pack-placeholder"));}
   if(!data?.length){box.append(make("p","Nos premières offres groupées arrivent bientôt. Reviens découvrir nos packs très prochainement.","pack-empty"));return;}
-  for(const pack of data){
-   const items=(pack.pack_ebooks||[]).filter(item=>item.ebooks?.title).sort((a,b)=>(a.position??0)-(b.position??0));
-   const card=make("article",undefined,"pack-card pack-card-premium");
-   const visual=make("div",undefined,"pack-visual");
+  for(const pack of data){const items=(pack.pack_ebooks||[]).filter(x=>x.ebooks?.title).sort((a,b)=>(a.position??0)-(b.position??0));
+   const card=make("article",undefined,"pack-card pack-card-premium"),visual=make("div",undefined,"pack-visual");
    if(pack.cover_path){const url=await getCoverUrl(pack.cover_path);if(url){const img=make("img");img.className="pack-cover";img.src=url;img.alt="Couverture du pack "+pack.title;visual.append(img);}}
    if(!visual.childElementCount){const placeholder=make("div",undefined,"pack-cover-placeholder");placeholder.append(make("span","N.","pack-placeholder-mark"),make("span","SÉLECTION NATHBOOK","pack-placeholder-label"));visual.append(placeholder);}
-   visual.append(make("span","OFFRE GROUPÉE","pack-ribbon"));
-   const body=make("div",undefined,"pack-card-body");
-   body.append(make("span",items.length+" EBOOK"+(items.length>1?"S":""),"pack-count"));
-   body.append(make("h3",pack.title),make("p",pack.description||"Une sélection d'ebooks réunis dans une seule offre.","pack-description"));
-   const contents=make("div",undefined,"pack-contents");contents.append(make("strong","Dans ce pack"));
-   const list=make("ul");
-   if(items.length){items.forEach(item=>list.append(make("li",item.ebooks.title)));}else{list.append(make("li","Contenu bientôt disponible"));}
-   contents.append(list);body.append(contents);
-   const footer=make("div",undefined,"pack-card-footer"),priceBlock=make("div",undefined,"pack-price-block");
-   priceBlock.append(make("span","Prix du pack","pack-price-label"),make("p",Number(pack.price).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" €","pack-price"));
-   const add=make("button","Découvrir le pack");add.type="button";add.addEventListener("click",()=>addToCart({key:"pack:"+pack.id,id:pack.id,type:"pack",title:pack.title,price:Number(pack.price),cover_path:pack.cover_path||null}));
-   footer.append(priceBlock,add);body.append(footer);card.append(visual,body);box.append(card);
+   visual.append(make("span","OFFRE GROUPÉE","pack-ribbon"));const body=make("div",undefined,"pack-card-body");
+   body.append(make("span",items.length+" EBOOK"+(items.length>1?"S":""),"pack-count"),make("h3",pack.title),make("p",pack.description||"Une sélection d'ebooks réunis dans une seule offre.","pack-description"));
+   const contents=make("div",undefined,"pack-contents");contents.append(make("strong","Dans ce pack"));const list=make("ul");items.forEach(x=>list.append(make("li",x.ebooks.title)));if(!items.length)list.append(make("li","Contenu bientôt disponible"));contents.append(list);body.append(contents);
+   const footer=make("div",undefined,"pack-card-footer"),price=make("div",undefined,"pack-price-block");price.append(make("span","Prix du pack","pack-price-label"),make("p",euro(pack.price),"pack-price"));
+   const actions=make("div",undefined,"pack-card-actions"),details=make("button","Voir le contenu","secondary");details.type="button";details.addEventListener("click",()=>location.hash="#pack-"+pack.id);
+   const add=make("button","Ajouter au panier");add.type="button";add.addEventListener("click",()=>addToCart({key:"pack:"+pack.id,id:pack.id,type:"pack",title:pack.title,price:Number(pack.price),cover_path:pack.cover_path||null}));
+   actions.append(details,add);footer.append(price,actions);body.append(footer);card.append(visual,body);box.append(card);
   }
  }catch(error){console.error("Chargement des packs publics :",error);box.append(make("p","Les packs ne sont pas disponibles pour le moment.","pack-empty"));}
 }
@@ -653,7 +647,7 @@ function renderBookCatalog(){
   const badge=make("span","PDF numérique","book-format-badge");visual.append(badge);card.append(visual);
   const body=make("div",undefined,"book-card-body");
   body.append(make("h3",book.title),make("p",book.description||"Découvrez cet ebook numérique NATHBOOK.","book-description"));
-  const author=make("a","Par @Nath","author-link");author.href="#auteur-nath";body.append(author);
+  const author=make("a","Par "+(book.author||"Nath"),"author-link");author.href="#auteur-nath";body.append(author);
   const footer=make("div",undefined,"book-card-footer");footer.append(make("strong",euro(book.price),"price"));
   const actions=make("div",undefined,"book-card-actions");
   const details=make("button","Voir le livre","secondary");details.type="button";details.addEventListener("click",()=>showBookDetails(book));
@@ -692,7 +686,8 @@ async function renderProductPage(route){
 async function loadPublicBooks(){
  booksBox.replaceChildren();
  try{
-  const {data,error}=await client.from("ebooks").select("id,title,description,price,cover_path,created_at").eq("is_published",true).order("created_at",{ascending:false});
+  let {data,error}=await client.from("ebooks").select("id,title,author,description,price,cover_path,created_at").eq("is_published",true).order("created_at",{ascending:false});
+  if(error&&String(error.message).toLowerCase().includes("author"))({data,error}=await client.from("ebooks").select("id,title,description,price,cover_path,created_at").eq("is_published",true).order("created_at",{ascending:false}));
   if(error)throw error;currentBooks=data||[];
   renderBookCatalog();
   const homeBox=$("homeBooks");
@@ -831,7 +826,7 @@ function renderPackChoices(selected=[]){const box=$("packChoices");box.replaceCh
 async function editPack(pack,items){resetPackForm();$("packForm").classList.remove("hidden");$("packId").value=pack.id;$("packTitle").value=pack.title;$("packDescription").value=pack.description||"";$("packPrice").value=pack.price;$("packPublished").checked=pack.is_published;$("packFormTitle").textContent="Modifier le pack existant";$("savePackBtn").textContent="Enregistrer les modifications";$("packFilesInfo").textContent="Modification de : "+pack.title+". "+(pack.cover_path?"La couverture actuelle sera conservée si tu n'en choisis pas une nouvelle.":"Aucune couverture enregistrée.");$("packFilesInfo").classList.remove("hidden");renderPackChoices(items.map(x=>x.ebook_id));if(pack.cover_path){const url=await getCoverUrl(pack.cover_path);if(url){$("packCoverPreview").src=url;$("packCoverPreview").classList.remove("hidden");$("packCoverPlaceholder").classList.add("hidden");}}updatePackPreview();$("packForm").scrollIntoView({behavior:"smooth",block:"start"});}
 async function deletePack(pack){if(!confirm("Supprimer définitivement le pack « "+pack.title+" » ?"))return;try{const {error}=await client.from("packs").delete().eq("id",pack.id);if(error)throw error;if(pack.cover_path)await client.storage.from("ebooks").remove([pack.cover_path]);await loadAdminPacks();await loadPublicPacks();}catch(error){alert("Suppression impossible : "+error.message)}}
 function resetBookForm(){ $("bookForm").classList.add("hidden");$("bookForm").reset();$("bookId").value="";$("formTitle").textContent="Ajouter un ebook";$("saveBookBtn").textContent="Enregistrer l'ebook";$("formMessage").classList.add("hidden");$("bookFilesInfo").classList.add("hidden");$("bookFilesInfo").textContent="";$("bookCoverPreview").removeAttribute("src");$("bookCoverPreview").classList.add("hidden");$("bookCoverPlaceholder").classList.remove("hidden");$("bookPreviewTitle").textContent="Titre de votre ebook";$("bookPreviewDescription").textContent="Votre description apparaîtra ici.";$("bookPreviewPrice").textContent=euro(0);$("bookPdfPreview").lastElementChild.textContent="Aucun fichier sélectionné";if(bookPreviewObjectUrl){URL.revokeObjectURL(bookPreviewObjectUrl);bookPreviewObjectUrl=null;}}
-async function editBook(book){resetBookForm();$("bookForm").classList.remove("hidden");$("bookId").value=book.id;$("bookTitle").value=book.title;$("bookDescription").value=book.description||"";$("bookPrice").value=book.price;$("published").value=String(book.is_published);$("formTitle").textContent="Modifier l'ebook existant";$("saveBookBtn").textContent="Enregistrer les modifications";$("bookFilesInfo").textContent="Modification de : "+book.title+". "+(book.cover_path?"Couverture actuelle conservée. ":"Aucune couverture enregistrée. ")+(book.pdf_path?"PDF actuel conservé.":"Aucun PDF enregistré.")+" Laisse les champs de fichiers vides pour garder les fichiers actuels.";$("bookFilesInfo").classList.remove("hidden");$("bookPreviewTitle").textContent=book.title;$("bookPreviewDescription").textContent=book.description||"Aucune description renseignée.";$("bookPreviewPrice").textContent=euro(book.price);$("bookPdfPreview").lastElementChild.textContent=book.pdf_path?"PDF déjà associé — conservé":"Aucun PDF associé";if(book.cover_path){const url=await getCoverUrl(book.cover_path);if(url){$("bookCoverPreview").src=url;$("bookCoverPreview").classList.remove("hidden");$("bookCoverPlaceholder").classList.add("hidden");}}$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})}
+async function editBook(book){resetBookForm();$("bookForm").classList.remove("hidden");$("bookId").value=book.id;$("bookTitle").value=book.title;$("bookAuthor").value=book.author||"Nath";$("bookDescription").value=book.description||"";$("bookPrice").value=book.price;$("published").value=String(book.is_published);$("formTitle").textContent="Modifier l'ebook existant";$("saveBookBtn").textContent="Enregistrer les modifications";$("bookFilesInfo").textContent="Modification de : "+book.title+". "+(book.cover_path?"Couverture actuelle conservée. ":"Aucune couverture enregistrée. ")+(book.pdf_path?"PDF actuel conservé.":"Aucun PDF enregistré.")+" Laisse les champs de fichiers vides pour garder les fichiers actuels.";$("bookFilesInfo").classList.remove("hidden");$("bookPreviewTitle").textContent=book.title;$("bookPreviewDescription").textContent=book.description||"Aucune description renseignée.";$("bookPreviewPrice").textContent=euro(book.price);$("bookPdfPreview").lastElementChild.textContent=book.pdf_path?"PDF déjà associé — conservé":"Aucun PDF associé";if(book.cover_path){const url=await getCoverUrl(book.cover_path);if(url){$("bookCoverPreview").src=url;$("bookCoverPreview").classList.remove("hidden");$("bookCoverPlaceholder").classList.add("hidden");}}$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})}
 async function uploadFile(file,path){const {data,error}=await client.storage.from("ebooks").upload(path,file,{upsert:true,contentType:file.type});if(error)throw error;return data.path}
 function getPasswordRules(password){return {length:password.length>=8,upper:/[A-Z]/.test(password),lower:/[a-z]/.test(password),number:/[0-9]/.test(password),special:/[^A-Za-z0-9]/.test(password)};}
 function updatePasswordRules(password,prefix){const rules=getPasswordRules(password);const ids=prefix==="reset"?{length:"resetRuleLength",upper:"resetRuleUpper",lower:"resetRuleLower",number:"resetRuleNumber",special:"resetRuleSpecial"}:{length:"customerRuleLength",upper:"customerRuleUpper",lower:"customerRuleLower",number:"customerRuleNumber",special:"customerRuleSpecial"};Object.entries(rules).forEach(([key,valid])=>$(ids[key]).classList.toggle("valid",valid));return Object.values(rules).every(Boolean);}
