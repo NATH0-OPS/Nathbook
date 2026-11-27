@@ -632,7 +632,7 @@ document.addEventListener("click",event=>{
  if(!target||target==="#")return;
  event.preventDefault();
  if(link.hasAttribute("data-settings-shortcut")){if(location.hash!=="#compte")location.hash="#compte";showPage();setTimeout(()=>{$("customerSettingsCard")?.scrollIntoView({behavior:"smooth",block:"start"});},80);return;}
- if(location.hash!==target)location.hash=target;
+ if(location.hash!==target){location.hash=target;return;}
  showPage();
 });
 
