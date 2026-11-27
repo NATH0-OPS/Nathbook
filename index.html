@@ -632,8 +632,8 @@ async function renderAuthorBooks(){
  for(const book of books){
   const card=make("article",undefined,"book");
   if(book.cover_path){const url=await getCoverUrl(book.cover_path);if(url){const img=make("img");img.className="cover";img.src=url;img.alt="Couverture de "+book.title;card.append(img)}}
-  card.append(make("h3",book.title),make("p",book.description||""),make("p",Number(book.price).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" €","price"));
-  const add=make("button","Ajouter au panier");add.type="button";add.addEventListener("click",()=>addToCart({key:"ebook:"+book.id,id:book.id,type:"ebook",title:book.title,price:Number(book.price)}));card.append(add);box.append(card);
+  card.append(make("h3",book.title),make("p",book.description||""));addBookBadges(card,book);appendBookPrice(card,book);
+  const add=make("button","Ajouter au panier");add.type="button";add.addEventListener("click",()=>addToCart({key:"ebook:"+book.id,id:book.id,type:"ebook",title:book.title,price:bookSalePrice(book)}));card.append(add);box.append(card);
  }
 }
 function renderBookCatalog(){
@@ -833,7 +833,7 @@ async function loadAdminBooks(){
   if(!thumb.childElementCount)thumb.textContent="N.";
   info.append(make("strong",book.title));
   const meta=make("div",undefined,"admin-book-meta");
-  meta.append(make("span",book.is_published?"Publié":"Brouillon","admin-book-tag "+(book.is_published?"is-published":"is-draft")),make("span",Number(book.price).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" €","admin-book-tag"),make("span","PDF "+(book.pdf_path?"ajouté":"manquant"),"admin-book-tag"));
+  meta.append(make("span",book.is_published?"Publié":"Brouillon","admin-book-tag "+(book.is_published?"is-published":"is-draft")),make("span",Number(book.price).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" €","admin-book-tag"),make("span",Number(book.sale_percent)>0?"−"+book.sale_percent+" %":"Sans réduction","admin-book-tag"),make("span",bookBadgeLabel(book)||"Sans badge","admin-book-tag"),make("span","PDF "+(book.pdf_path?"ajouté":"manquant"),"admin-book-tag"));
   info.append(meta);
   const edit=make("button","Modifier la fiche","secondary");edit.type="button";edit.addEventListener("click",()=>editBook(book));
   const del=make("button","Supprimer","danger");del.type="button";del.addEventListener("click",()=>deleteBook(book));
@@ -908,6 +908,8 @@ $("bookDescription").addEventListener("input",()=>{$("bookPreviewDescription").t
 $("bookPrice").addEventListener("input",()=>{$("bookPreviewPrice").textContent=$("bookPrice").value?euro($("bookPrice").value):euro(0)});
 $("coverFile").addEventListener("change",()=>{const file=$("coverFile").files[0];if(!file)return;if(bookPreviewObjectUrl)URL.revokeObjectURL(bookPreviewObjectUrl);bookPreviewObjectUrl=URL.createObjectURL(file);$("bookCoverPreview").src=bookPreviewObjectUrl;$("bookCoverPreview").classList.remove("hidden");$("bookCoverPlaceholder").classList.add("hidden")});
 $("pdfFile").addEventListener("change",()=>{$("bookPdfPreview").lastElementChild.textContent=$("pdfFile").files[0]?.name||"Aucun fichier sélectionné"});
+function updateBookOfferPreview(){const price=Math.max(0,Number($("bookPrice").value)||0),percent=Math.min(90,Math.max(0,Math.round(Number($("bookSalePercent").value)||0)));$("bookPreviewPrice").textContent=percent>0?euro(Math.round(price*(100-percent))/100)+" (−"+percent+" %)":euro(price);}
+$("bookPrice").addEventListener("input",updateBookOfferPreview);$("bookSalePercent").addEventListener("input",updateBookOfferPreview);
 $("newBookBtn").addEventListener("click",()=>{resetBookForm();$("bookForm").classList.remove("hidden");$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})});
 $("cancelEditBtn").addEventListener("click",resetBookForm);
 $("bookForm").addEventListener("submit",async event=>{
