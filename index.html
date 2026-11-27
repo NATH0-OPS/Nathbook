@@ -1247,4 +1247,31 @@ body.nath-dark .customer-profile-card,body.nath-dark .customer-settings-card,bod
 
 /* Partage de la fiche produit */
 .product-share-button{margin-top:9px;width:100%;border:1px solid #d8d0c3!important;background:#fffdfa!important;color:#29483c!important}.product-share-status{display:block;min-height:18px;margin-top:7px;color:#49664e;font-size:12px;line-height:1.5;text-align:center}.product-share-button:disabled{opacity:.7}
-</style></body></html>
+
+/* Admin : sections pliables pour un espace plus aéré */
+#adminPanel .admin-fold{border:1px solid var(--line);border-radius:14px;background:var(--white);margin:14px 0;overflow:hidden}
+#adminPanel .admin-fold>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px;cursor:pointer;background:#f7f9fa;color:var(--navy);font-weight:800;font-size:15px}
+#adminPanel .admin-fold>summary::-webkit-details-marker{display:none}
+#adminPanel .admin-fold>summary:after{content:'＋';display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:50%;background:#e8eef2;color:var(--navy);font-size:20px}
+#adminPanel .admin-fold[open]>summary:after{content:'−'}
+#adminPanel .admin-fold>summary .admin-fold-caption{display:block;color:var(--muted);font-size:12px;font-weight:500;margin-top:4px}
+#adminPanel .admin-fold-body{padding:18px 20px;border-top:1px solid var(--line)}
+#adminPanel .admin-fold-body>h3{display:none!important}
+@media(max-width:620px){#adminPanel .admin-fold>summary{padding:15px;font-size:14px}#adminPanel .admin-fold-body{padding:14px}}
+</style>
+<script>
+(function(){
+ function buildAdminFolds(){
+  const panel=document.getElementById('adminPanel'); if(!panel||panel.dataset.foldsReady==='1')return; panel.dataset.foldsReady='1';
+  const groups=[{id:'adminPacksTitle',title:'Packs',caption:'Créer, modifier et gérer vos offres groupées'},{id:'adminPromosTitle',title:'Codes promotionnels',caption:'Créer et gérer les codes de réduction'},{id:'adminReviewsTitle',title:'Avis clients',caption:'Vérifier et publier les avis reçus'},{id:'adminBooksTitle',title:'Mes ebooks',caption:'Modifier vos fiches, prix et publications'}];
+  groups.forEach(function(g){const h=document.getElementById(g.id);if(!h||!h.parentNode)return;const fold=document.createElement('details');fold.className='admin-fold';const summary=document.createElement('summary');summary.innerHTML='<span>'+g.title+'<small class="admin-fold-caption">'+g.caption+'</small></span>';const body=document.createElement('div');body.className='admin-fold-body';h.parentNode.insertBefore(fold,h);fold.appendChild(summary);fold.appendChild(body);body.appendChild(h);let node=fold.nextSibling;while(node){const next=node.nextSibling;if(node.nodeType===1&&groups.some(x=>node.id===x.id))break;body.appendChild(node);node=next;}});
+  const message=document.getElementById('adminOrdersMessage'),orders=document.getElementById('adminRecentOrders'),perf=document.getElementById('adminProductPerformance');
+  if(message&&orders&&perf){const fold=document.createElement('details');fold.className='admin-fold admin-sales-fold';const summary=document.createElement('summary');summary.innerHTML='<span>Suivi des ventes<small class="admin-fold-caption">Commandes récentes et produits les plus vendus</small></span>';const body=document.createElement('div');body.className='admin-fold-body';const heading1=message.previousElementSibling,heading2=perf.previousElementSibling;message.parentNode.insertBefore(fold,heading1||message);fold.append(summary,body);[heading1,message,orders,heading2,perf].forEach(n=>{if(n&&n.parentNode!==body)body.appendChild(n);});}
+  const openFold=function(id){const el=document.getElementById(id);if(el){const fold=el.closest('details.admin-fold');if(fold)fold.open=true;}};
+  document.getElementById('newPackBtn')?.addEventListener('click',()=>openFold('adminPacksTitle'));
+  document.getElementById('adminGoPromos')?.addEventListener('click',()=>openFold('adminPromosTitle'));
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildAdminFolds);else buildAdminFolds();
+})();
+</script>
+</body></html>
