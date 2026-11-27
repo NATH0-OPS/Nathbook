@@ -606,7 +606,7 @@ function showPage(){
  // Le paramètre Stripe ne doit agir qu'au retour initial.
  // On le retire de l'adresse pour que les liens du site fonctionnent ensuite.
  if(payment==="success"||payment==="cancel"){
-  const cleanUrl=location.pathname+location.hash;
+  const cleanUrl=location.pathname+"#"+page;
   history.replaceState(null,"",cleanUrl);
  }
 
