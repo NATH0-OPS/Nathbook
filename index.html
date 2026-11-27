@@ -515,7 +515,7 @@ const SUPABASE_KEY="sb_publishable_iu6Pe7kcRHFINeLKMvwD9w_fzZfjvbU";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 const statusBox=$("status"),booksBox=$("books"),authPanel=$("authPanel"),adminPanel=$("adminPanel");
-let currentBooks=[];let currentPacks=[];let cart=[];let isPasswordRecovery=false;let isCurrentAdmin=false;let bookPreviewObjectUrl=null;
+let currentBooks=[];let currentPacks=[];let cart=[];let isPasswordRecovery=false;let isCurrentAdmin=false;let bookPreviewObjectUrl=null;let isSavingBook=false;
 
 function updateAdminStats(){
  const total=currentBooks.length;
@@ -955,7 +955,7 @@ $("bookPrice").addEventListener("input",updateBookOfferPreview);$("bookSalePerce
 $("newBookBtn").addEventListener("click",()=>{resetBookForm();$("bookForm").classList.remove("hidden");$("bookForm").scrollIntoView({behavior:"smooth",block:"start"})});
 $("cancelEditBtn").addEventListener("click",resetBookForm);
 $("bookForm").addEventListener("submit",async event=>{
- event.preventDefault();const save=$("saveBookBtn");save.disabled=true;
+ event.preventDefault();if(isSavingBook)return;isSavingBook=true;const save=$("saveBookBtn");save.disabled=true;
  try{
   const id=$("bookId").value||crypto.randomUUID(),title=$("bookTitle").value.trim(),cover=$("coverFile").files[0],pdf=$("pdfFile").files[0];
   if(!title)throw new Error("Le titre est obligatoire.");
@@ -972,7 +972,7 @@ $("bookForm").addEventListener("submit",async event=>{
   showStatus($("formMessage"),"Ebook enregistré avec succès. Les fichiers sont stockés dans le bucket privé.","ok");
   resetBookForm();await loadAdminBooks();await loadPublicBooks();
  }catch(error){showStatus($("formMessage"),"Erreur : "+error.message,"err");console.error(error)}
- finally{save.disabled=false}
+ finally{save.disabled=false;isSavingBook=false}
 });
 async function deleteBook(book){
  if(!confirm("Supprimer définitivement « "+book.title+" » ?"))return;
