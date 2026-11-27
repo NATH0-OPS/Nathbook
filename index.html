@@ -489,7 +489,11 @@ header nav .admin-nav-link:hover{background:#e5c18c30;color:#fff0d9}
 <div class="admin-stat"><span>MES EBOOKS</span><strong id="adminStatBooks">—</strong><small>Publications enregistrées</small></div>
 <div class="admin-stat"><span>EN LIGNE</span><strong id="adminStatPublished">—</strong><small>Ebooks publiés</small></div>
 <div class="admin-stat"><span>MES PACKS</span><strong id="adminStatPacks">—</strong><small>Offres groupées créées</small></div>
+<div class="admin-stat admin-sales-stat"><span>COMMANDES PAYÉES</span><strong id="adminStatPaidOrders">—</strong><small>Achats confirmés</small></div>
+<div class="admin-stat admin-sales-stat"><span>CHIFFRE D’AFFAIRES</span><strong id="adminStatRevenue">—</strong><small>Total des commandes payées</small></div>
+<div class="admin-stat admin-sales-stat"><span>EN ATTENTE</span><strong id="adminStatPendingOrders">—</strong><small>Commandes non finalisées</small></div>
 </div>
+<div class="admin-section-heading admin-sales-heading"><span class="admin-kicker">SUIVI DE L’ACTIVITÉ</span><span class="admin-section-line"></span></div><div id="adminOrdersMessage" class="status hidden"></div><div id="adminRecentOrders" class="admin-recent-orders">Chargement des commandes…</div>
 <div class="admin-quick">
 <button id="newBookBtn" type="button" class="admin-quick-card"><span class="quick-icon">＋</span><span><strong>Ajouter un ebook</strong><small>Créer une nouvelle fiche produit</small></span><b>→</b></button>
 <button id="newPackBtn" type="button" class="admin-quick-card"><span class="quick-icon">▤</span><span><strong>Créer un pack</strong><small>Réunir plusieurs ebooks dans une offre</small></span><b>→</b></button>
@@ -901,9 +905,45 @@ async function checkAdmin(session){
  isCurrentAdmin=true;
  $("adminWelcome").textContent="Connecté en tant qu'administrateur : "+session.user.email;
  // Ne pas forcer l’ouverture de l’administration : le compte admin peut aussi naviguer comme un client.
- await loadAdminBooks();await loadAdminPacks();await loadAdminPromos();await loadAdminReviews();
+ await loadAdminBooks();await loadAdminPacks();await loadAdminPromos();await loadAdminReviews();await loadAdminOrders();
 }
 function resetPromoForm(){const f=$("promoForm");f.classList.add("hidden");f.reset();$("promoId").value="";$("promoActive").checked=true;$("promoMessage").classList.add("hidden");$("savePromoBtn").textContent="Enregistrer le code";}
+async function loadAdminOrders(){
+ const box=$("adminRecentOrders"),message=$("adminOrdersMessage");
+ box.textContent="Chargement des commandes...";
+ const {data,error}=await client.from("orders").select("id,status,total_amount,currency,created_at,promo_code,discount_amount").order("created_at",{ascending:false});
+ if(error){box.textContent="Impossible de charger les commandes : "+error.message;showStatus(message,"Vérifie les autorisations de lecture des commandes dans Supabase.","err");return;}
+ const orders=data||[],paid=orders.filter(o=>o.status==="paid"),pending=orders.filter(o=>o.status==="pending");
+ const revenue=paid.reduce((sum,o)=>sum+Number(o.total_amount||0),0);
+ $("adminStatPaidOrders").textContent=String(paid.length);
+ $("adminStatRevenue").textContent=euro(revenue);
+ $("adminStatPendingOrders").textContent=String(pending.length);
+ box.replaceChildren();
+ const recent=orders.slice(0,8);
+ if(!recent.length){box.append(make("p","Aucune commande enregistrée pour le moment.","admin-orders-empty"));return;}
+ const ids=recent.map(o=>o.id);
+ const {data:items,error:itemError}=await client.from("order_items").select("order_id,title_snapshot,unit_price").in("order_id",ids);
+ if(itemError)console.warn("Détails des commandes non chargés :",itemError.message);
+ const statusLabels={paid:"Payée",pending:"En attente",cancelled:"Annulée",refunded:"Remboursée"};
+ recent.forEach(order=>{
+  const card=make("article",undefined,"admin-order-card");
+  const head=make("div",undefined,"admin-order-head");
+  const ref=make("strong","Commande #"+String(order.id).slice(0,8).toUpperCase());
+  const status=make("span",statusLabels[order.status]||order.status,"admin-order-status admin-order-"+order.status);
+  head.append(ref,status);
+  const date=make("small",new Date(order.created_at).toLocaleString("fr-FR",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}),"admin-order-date");
+  const products=(items||[]).filter(item=>item.order_id===order.id);
+  const names=products.map(item=>item.title_snapshot).filter(Boolean);
+  const summary=make("p",names.length?names.join(" · "):"Articles numériques","admin-order-products");
+  const foot=make("div",undefined,"admin-order-foot");
+  const amount=make("strong",euro(order.total_amount));
+  const currency=String(order.currency||"EUR").toUpperCase();
+  if(currency!=="EUR")amount.textContent=Number(order.total_amount||0).toLocaleString("fr-FR",{style:"currency",currency});
+  const promo=order.promo_code?make("small","Code : "+order.promo_code,"admin-order-promo"):make("small",products.length+" article(s)","admin-order-promo");
+  foot.append(amount,promo);
+  card.append(head,date,summary,foot);box.append(card);
+ });
+}
 async function loadAdminReviews(){
  const box=$("adminReviews"),message=$("adminReviewMessage");
  box.textContent="Chargement des avis en attente...";
@@ -1154,4 +1194,7 @@ body.nath-dark .customer-profile-card,body.nath-dark .customer-settings-card,bod
  .cart-item-count{margin:12px auto 0;color:#8b765d;text-align:center;font-size:12px;font-weight:800;letter-spacing:.3px}.cart-checkout-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:660px;margin:24px auto 26px}.cart-checkout-step{display:flex;align-items:center;justify-content:center;gap:9px;padding:12px 10px;border:1px solid #e6e0d5;border-radius:13px;background:#fffefa;color:#8a887e}.cart-checkout-step span{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#f0ece3;color:#8d6947;font-size:11px;font-weight:900}.cart-checkout-step strong{font-size:12px}.cart-checkout-step.is-current{border-color:#b9c9b4;background:#edf3eb;color:#345640}.cart-checkout-step.is-current span{background:#29483c;color:#fffefa}@media(max-width:480px){.cart-checkout-steps{gap:6px;margin:20px auto}.cart-checkout-step{flex-direction:column;gap:5px;padding:10px 4px}.cart-checkout-step strong{font-size:10px}} .customer-library-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:center;margin:14px 0 16px}.customer-library-search-label{grid-column:1/-1;color:#58665b;font-size:12px;font-weight:800}.customer-library-tools input{width:100%;min-width:0;padding:12px 14px;border:1px solid #e3ddd2;border-radius:12px;background:#fffefa;color:#263b35;font-size:13px}.customer-library-count{white-space:nowrap;color:#8d6947;font-size:11px;font-weight:800}.customer-ebook[hidden]{display:none!important}@media(max-width:480px){.customer-library-tools{grid-template-columns:1fr}.customer-library-count{white-space:normal}}.home-book-rating{margin:5px 3px 8px;color:#987047;font-size:12px;font-weight:800;letter-spacing:.2px}.home-book-rating::first-letter{color:#bd8957}
 /* Modération des avis dans l'administration */
 .admin-review-intro{margin:0 0 14px;color:#686e65;font-size:13px}.admin-reviews-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin:14px 0 28px}.admin-review-card{min-width:0}.admin-review-content{min-width:0}.admin-review-content strong{overflow-wrap:anywhere}.admin-review-body{margin:12px 0 0;color:#363a33;font-size:14px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}.admin-review-actions button{min-height:44px}.admin-review-approve{background:#315c42}.admin-review-approve:hover{background:#244a33}.admin-review-empty{grid-column:1/-1;margin:0;padding:20px;border:1px dashed #d9cdbb;border-radius:14px;background:#faf7f0;color:#4d5b4b;font-weight:700}@media(max-width:560px){.admin-reviews-list{grid-template-columns:1fr}.admin-review-actions{width:100%}.admin-review-actions button{flex:1}}
+
+/* Tableau de bord des ventes */
+.admin-sales-stat strong{font-size:clamp(20px,2.4vw,30px)!important;overflow-wrap:anywhere}.admin-sales-heading{margin-top:30px}.admin-recent-orders{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:13px;margin:14px 0 28px}.admin-order-card{display:flex;flex-direction:column;gap:11px;padding:17px;border:1px solid var(--line);border-radius:15px;background:#fff;min-width:0}.admin-order-head,.admin-order-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.admin-order-head strong{font-size:14px;letter-spacing:.3px}.admin-order-status{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;background:#f2eee7;color:#66523b}.admin-order-paid{background:#e8f2e7;color:#326344}.admin-order-pending{background:#fff1d9;color:#875d16}.admin-order-cancelled,.admin-order-refunded{background:#fbe8e6;color:#91483f}.admin-order-date,.admin-order-promo{color:var(--muted);font-size:12px}.admin-order-products{margin:0;color:#3d4841;font-size:13px;line-height:1.55;overflow-wrap:anywhere}.admin-order-foot{padding-top:10px;border-top:1px solid var(--line)}.admin-order-foot strong{font-size:18px;color:var(--navy)}.admin-orders-empty{padding:18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}@media(max-width:600px){.admin-recent-orders{grid-template-columns:1fr}.admin-order-card{padding:15px}}
 </style></body></html>
