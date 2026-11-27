@@ -494,6 +494,7 @@ header nav .admin-nav-link:hover{background:#e5c18c30;color:#fff0d9}
 <div class="admin-stat admin-sales-stat"><span>EN ATTENTE</span><strong id="adminStatPendingOrders">—</strong><small>Commandes non finalisées</small></div>
 </div>
 <div class="admin-section-heading admin-sales-heading"><span class="admin-kicker">SUIVI DE L’ACTIVITÉ</span><span class="admin-section-line"></span></div><div id="adminOrdersMessage" class="status hidden"></div><div id="adminRecentOrders" class="admin-recent-orders">Chargement des commandes…</div>
+<div class="admin-section-heading admin-sales-heading"><span class="admin-kicker">PRODUITS LES PLUS VENDUS</span><span class="admin-section-line"></span></div><div id="adminProductPerformance" class="admin-product-performance">Calcul des ventes par produit…</div>
 <div class="admin-quick">
 <button id="newBookBtn" type="button" class="admin-quick-card"><span class="quick-icon">＋</span><span><strong>Ajouter un ebook</strong><small>Créer une nouvelle fiche produit</small></span><b>→</b></button>
 <button id="newPackBtn" type="button" class="admin-quick-card"><span class="quick-icon">▤</span><span><strong>Créer un pack</strong><small>Réunir plusieurs ebooks dans une offre</small></span><b>→</b></button>
@@ -905,9 +906,38 @@ async function checkAdmin(session){
  isCurrentAdmin=true;
  $("adminWelcome").textContent="Connecté en tant qu'administrateur : "+session.user.email;
  // Ne pas forcer l’ouverture de l’administration : le compte admin peut aussi naviguer comme un client.
- await loadAdminBooks();await loadAdminPacks();await loadAdminPromos();await loadAdminReviews();await loadAdminOrders();
+ await loadAdminBooks();await loadAdminPacks();await loadAdminPromos();await loadAdminReviews();await loadAdminOrders();await loadAdminProductPerformance();
 }
 function resetPromoForm(){const f=$("promoForm");f.classList.add("hidden");f.reset();$("promoId").value="";$("promoActive").checked=true;$("promoMessage").classList.add("hidden");$("savePromoBtn").textContent="Enregistrer le code";}
+async function loadAdminProductPerformance(){
+ const box=$("adminProductPerformance");
+ box.textContent="Calcul des ventes par produit...";
+ const {data:paidOrders,error:ordersError}=await client.from("orders").select("id").eq("status","paid");
+ if(ordersError){box.textContent="Impossible de charger les ventes par produit : "+ordersError.message;return;}
+ const ids=(paidOrders||[]).map(order=>order.id);
+ if(!ids.length){box.textContent="Les produits apparaîtront ici après les premières commandes payées.";return;}
+ const {data:items,error}=await client.from("order_items").select("title_snapshot,unit_price,order_id").in("order_id",ids);
+ if(error){box.textContent="Impossible de charger les articles vendus : "+error.message;return;}
+ const grouped=new Map();
+ (items||[]).forEach(item=>{
+  const title=item.title_snapshot||"Produit numérique";
+  const current=grouped.get(title)||{title,count:0,revenue:0};
+  current.count+=1;current.revenue+=Number(item.unit_price||0);grouped.set(title,current);
+ });
+ const products=[...grouped.values()].sort((a,b)=>b.count-a.count||b.revenue-a.revenue);
+ box.replaceChildren();
+ if(!products.length){box.append(make("p","Aucun article vendu pour le moment.","admin-orders-empty"));return;}
+ products.slice(0,10).forEach((product,index)=>{
+  const row=make("article",undefined,"admin-product-performance-row");
+  const rank=make("span",String(index+1).padStart(2,"0"),"admin-product-rank");
+  const details=make("div",undefined,"admin-product-performance-details");
+  const title=make("strong",product.title);
+  const count=make("small",product.count+" vente"+(product.count>1?"s":""));
+  details.append(title,count);
+  const revenue=make("strong",euro(product.revenue),"admin-product-revenue");
+  row.append(rank,details,revenue);box.append(row);
+ });
+}
 async function loadAdminOrders(){
  const box=$("adminRecentOrders"),message=$("adminOrdersMessage");
  box.textContent="Chargement des commandes...";
@@ -1197,4 +1227,7 @@ body.nath-dark .customer-profile-card,body.nath-dark .customer-settings-card,bod
 
 /* Tableau de bord des ventes */
 .admin-sales-stat strong{font-size:clamp(20px,2.4vw,30px)!important;overflow-wrap:anywhere}.admin-sales-heading{margin-top:30px}.admin-recent-orders{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:13px;margin:14px 0 28px}.admin-order-card{display:flex;flex-direction:column;gap:11px;padding:17px;border:1px solid var(--line);border-radius:15px;background:#fff;min-width:0}.admin-order-head,.admin-order-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.admin-order-head strong{font-size:14px;letter-spacing:.3px}.admin-order-status{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;background:#f2eee7;color:#66523b}.admin-order-paid{background:#e8f2e7;color:#326344}.admin-order-pending{background:#fff1d9;color:#875d16}.admin-order-cancelled,.admin-order-refunded{background:#fbe8e6;color:#91483f}.admin-order-date,.admin-order-promo{color:var(--muted);font-size:12px}.admin-order-products{margin:0;color:#3d4841;font-size:13px;line-height:1.55;overflow-wrap:anywhere}.admin-order-foot{padding-top:10px;border-top:1px solid var(--line)}.admin-order-foot strong{font-size:18px;color:var(--navy)}.admin-orders-empty{padding:18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}@media(max-width:600px){.admin-recent-orders{grid-template-columns:1fr}.admin-order-card{padding:15px}}
+
+/* Classement des produits vendus */
+.admin-product-performance{display:flex;flex-direction:column;gap:10px;margin:14px 0 30px}.admin-product-performance-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:#fff;min-width:0}.admin-product-rank{font-size:12px;font-weight:900;color:var(--muted)}.admin-product-performance-details{display:flex;flex-direction:column;gap:4px;min-width:0}.admin-product-performance-details strong{font-size:14px;overflow-wrap:anywhere}.admin-product-performance-details small{font-size:12px;color:var(--muted)}.admin-product-revenue{font-size:15px;color:var(--navy);white-space:nowrap}@media(max-width:480px){.admin-product-performance-row{grid-template-columns:25px minmax(0,1fr);gap:9px;padding:12px}.admin-product-revenue{grid-column:2;font-size:14px}}
 </style></body></html>
