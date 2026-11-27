@@ -1263,15 +1263,36 @@ body.nath-dark .customer-profile-card,body.nath-dark .customer-settings-card,bod
 (function(){
  function buildAdminFolds(){
   const panel=document.getElementById('adminPanel'); if(!panel||panel.dataset.foldsReady==='1')return; panel.dataset.foldsReady='1';
-  const groups=[{id:'adminPacksTitle',title:'Packs',caption:'Créer, modifier et gérer vos offres groupées'},{id:'adminPromosTitle',title:'Codes promotionnels',caption:'Créer et gérer les codes de réduction'},{id:'adminReviewsTitle',title:'Avis clients',caption:'Vérifier et publier les avis reçus'},{id:'adminBooksTitle',title:'Mes ebooks',caption:'Modifier vos fiches, prix et publications'}];
-  groups.forEach(function(g){const h=document.getElementById(g.id);if(!h||!h.parentNode)return;const fold=document.createElement('details');fold.className='admin-fold';const summary=document.createElement('summary');summary.innerHTML='<span>'+g.title+'<small class="admin-fold-caption">'+g.caption+'</small></span>';const body=document.createElement('div');body.className='admin-fold-body';h.parentNode.insertBefore(fold,h);fold.appendChild(summary);fold.appendChild(body);body.appendChild(h);let node=fold.nextSibling;while(node){const next=node.nextSibling;if(node.nodeType===1&&groups.some(x=>node.id===x.id))break;body.appendChild(node);node=next;}});
-  const message=document.getElementById('adminOrdersMessage'),orders=document.getElementById('adminRecentOrders'),perf=document.getElementById('adminProductPerformance');
-  if(message&&orders&&perf){const fold=document.createElement('details');fold.className='admin-fold admin-sales-fold';const summary=document.createElement('summary');summary.innerHTML='<span>Suivi des ventes<small class="admin-fold-caption">Commandes récentes et produits les plus vendus</small></span>';const body=document.createElement('div');body.className='admin-fold-body';const heading1=message.previousElementSibling,heading2=perf.previousElementSibling;message.parentNode.insertBefore(fold,heading1||message);fold.append(summary,body);[heading1,message,orders,heading2,perf].forEach(n=>{if(n&&n.parentNode!==body)body.appendChild(n);});}
-  const openFold=function(id){const el=document.getElementById(id);if(el){const fold=el.closest('details.admin-fold');if(fold)fold.open=true;}};
+  function makeFold(anchor,title,caption,nodes,extra){
+   if(!anchor||!anchor.parentNode)return null;
+   const fold=document.createElement('details');fold.className='admin-fold'+(extra?' '+extra:'');
+   const summary=document.createElement('summary');summary.innerHTML='<span>'+title+'<small class="admin-fold-caption">'+caption+'</small></span>';
+   const body=document.createElement('div');body.className='admin-fold-body';
+   anchor.parentNode.insertBefore(fold,anchor);fold.append(summary,body);
+   nodes.filter(Boolean).forEach(n=>{if(n!==fold&&n.parentNode)body.appendChild(n);});
+   return fold;
+  }
+  const packTitle=document.getElementById('adminPacksTitle'),packForm=document.getElementById('packForm'),packList=document.getElementById('adminPacks');
+  makeFold(packTitle,'Packs','Créer, modifier et gérer vos offres groupées',[packTitle,packForm,packList]);
+  const promoTitle=document.getElementById('adminPromosTitle'),promoForm=document.getElementById('promoForm'),promoList=document.getElementById('adminPromos'),newPromo=document.getElementById('newPromoBtn');
+  const promoIntro=promoForm&&promoForm.previousElementSibling, promoActions=newPromo&&newPromo.parentElement;
+  makeFold(promoTitle,'Codes promotionnels','Créer et gérer les codes de réduction',[promoTitle,promoIntro,promoForm,promoActions,promoList]);
+  const reviewTitle=document.getElementById('adminReviewsTitle'),reviewList=document.getElementById('adminReviews'),reviewMessage=document.getElementById('adminReviewMessage');
+  const reviewIntro=reviewTitle&&reviewTitle.nextElementSibling;
+  makeFold(reviewTitle,'Avis clients','Vérifier et publier les avis reçus',[reviewTitle,reviewIntro,reviewMessage,reviewList]);
+  const bookTitle=document.getElementById('adminBooksTitle'),bookList=document.getElementById('adminBooks');
+  makeFold(bookTitle,'Mes ebooks','Modifier vos fiches, prix et publications',[bookTitle,bookList]);
+  const salesMessage=document.getElementById('adminOrdersMessage'),salesOrders=document.getElementById('adminRecentOrders'),salesPerf=document.getElementById('adminProductPerformance');
+  if(salesMessage&&salesOrders&&salesPerf){
+   const h1=salesMessage.previousElementSibling,h2=salesPerf.previousElementSibling;
+   makeFold(h1,'Suivi des ventes','Commandes récentes et produits les plus vendus',[h1,salesMessage,salesOrders,h2,salesPerf],'admin-sales-fold');
+  }
+  function openFold(id){const el=document.getElementById(id);const fold=el&&el.closest('details.admin-fold');if(fold)fold.open=true;}
   document.getElementById('newPackBtn')?.addEventListener('click',()=>openFold('adminPacksTitle'));
   document.getElementById('adminGoPromos')?.addEventListener('click',()=>openFold('adminPromosTitle'));
+  document.getElementById('newPromoBtn')?.addEventListener('click',()=>openFold('adminPromosTitle'));
+  document.getElementById('newBookBtn')?.addEventListener('click',()=>openFold('adminBooksTitle'));
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildAdminFolds);else buildAdminFolds();
-})();
-</script>
+})();</script>
 </body></html>
