@@ -637,7 +637,7 @@ function showPage(){
  });
  document.querySelectorAll("#mobileBottomNav [data-mobile-route]").forEach(link=>{const route=link.dataset.mobileRoute;const active=route===page||(route==="boutique"&&page==="fiche-produit");link.classList.toggle("active",active);if(active)link.setAttribute("aria-current","page");else link.removeAttribute("aria-current");});
  window.scrollTo({top:0,behavior:"auto"});
- if(isProductRoute)renderProductPage(requested);if(page==="favoris")renderFavoritesPage();
+ if(isProductRoute)renderProductPage(requested);if(page==="favoris"&&window.renderFavoritesPage)window.renderFavoritesPage();
 }
 window.addEventListener("hashchange",showPage);
 
@@ -1162,7 +1162,7 @@ async function deleteBook(book){
 }
 document.querySelectorAll(".password-toggle").forEach(button=>{button.addEventListener("click",()=>{const field=button.closest(".password-field");const input=field?.querySelector("input");if(!input)return;const reveal=input.type==="password";input.type=reveal?"text":"password";button.classList.toggle("is-visible",reveal);button.setAttribute("aria-pressed",String(reveal));button.setAttribute("aria-label",reveal?"Masquer le mot de passe":"Afficher le mot de passe");button.title=reveal?"Masquer le mot de passe":"Afficher le mot de passe";});});
 client.auth.onAuthStateChange((event,session)=>{if(event==="PASSWORD_RECOVERY"){isPasswordRecovery=true;if(location.hash!=="#compte")location.hash="#compte";}setTimeout(()=>checkAdmin(session),0)});
-(async()=>{renderCart();await loadPublicBooks();await loadPublicPacks();showPage();const {data}=await client.auth.getSession();await checkAdmin(data.session)})();
+(async()=>{renderCart();await loadPublicBooks();await loadPublicPacks();showPage();window.renderFavoritesPage?.();const {data}=await client.auth.getSession();await checkAdmin(data.session)})();
 </script>
 <style>
 /* Étape boutique : panier client plus clair */
