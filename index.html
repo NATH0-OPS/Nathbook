@@ -546,7 +546,7 @@ function clearAppliedPromo(){
 function saveCart(){try{localStorage.setItem("nathbook_cart",JSON.stringify(cart));}catch(e){console.warn("Panier non sauvegardé sur cet appareil",e)}}
 function renderCart(){
  const box=$("cartItems");box.replaceChildren();
- const count=$("cartCount");if(count)count.textContent=String(cart.length);
+ const count=$("cartCount");if(count)count.textContent=String(cart.length);const mobileCount=$("mobileCartCount");if(mobileCount)mobileCount.textContent=String(cart.length);
  if(!cart.length){
   const empty=make("div",undefined,"cart-empty");
   empty.append(make("span","N.","cart-empty-mark"),make("h3","Ton panier est encore vide"),make("p","Découvre les ebooks et les packs de NATHBOOK, puis ajoute tes prochaines lectures ici."));
