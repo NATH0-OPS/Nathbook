@@ -401,6 +401,7 @@ header nav .admin-nav-link:hover{background:#e5c18c30;color:#fff0d9}
 .customer-ebook button{font-size:12px;padding:10px 13px}
 .customer-order-list{display:grid;gap:9px;margin-top:14px}
 .customer-order-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 14px;border:1px solid #e9e2d7;border-radius:12px;background:#fffefa;font-size:13px}
+.customer-order-cancel{padding:8px 12px;font-size:11px;white-space:nowrap;background:#f7ece5;color:#965c35;border:1px solid #ead8c7;box-shadow:none}.customer-order-cancel:hover{background:#efdfd2}
 .customer-order-row strong{display:block;color:#263b35}
 .customer-order-row small{color:#77736b}
 .customer-order-paid{color:#2e6a45;font-weight:800}
@@ -862,6 +863,27 @@ async function loadPublicBooks(){
   await renderAuthorBooks();await renderPromotionsPage();statusBox.classList.add("hidden");
  }catch(error){showStatus(statusBox,"Connexion non confirmée : "+error.message,"err");console.error(error)}
 }
+async function cancelPendingCustomerOrder(orderId,button){
+ if(!window.confirm("Annuler cette commande et libérer son code promo si elle en avait un ?"))return;
+ button.disabled=true;button.textContent="Annulation…";
+ try{
+  const {data:{session},error:sessionError}=await client.auth.getSession();
+  if(sessionError)throw sessionError;
+  if(!session)throw new Error("Connecte-toi à ton compte.");
+  const response=await fetch(SUPABASE_URL+"/functions/v1/nathbook-cancel-checkout",{
+   method:"POST",
+   headers:{"Content-Type":"application/json","Authorization":"Bearer "+session.access_token,"apikey":SUPABASE_KEY},
+   body:JSON.stringify({order_id:orderId})
+  });
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.error||"L’annulation n’a pas abouti.");
+  await loadCustomerLibrary(session);
+ }catch(error){
+  console.error("Annulation commande depuis le compte :",error);
+  button.disabled=false;button.textContent="Réessayer";
+  window.alert(error.message||"Impossible d’annuler cette commande pour le moment.");
+ }
+}
 async function loadCustomerLibrary(session){
  const library=$("customerLibrary"),ordersBox=$("customerOrders");
  library.replaceChildren(make("p","Chargement de ta bibliothèque…","customer-muted"));
@@ -902,7 +924,7 @@ async function loadCustomerLibrary(session){
    const statusMap={paid:["Payée","customer-order-paid"],pending:["En attente de confirmation","customer-order-pending"],failed:["Paiement échoué","customer-order-failed"],canceled:["Commande annulée","customer-order-muted"],cancelled:["Commande annulée","customer-order-muted"],refunded:["Remboursée","customer-order-muted"]};
    const statusInfo=statusMap[orderStatus]||["Statut : "+orderStatus.replace(/[_-]/g," "),"customer-order-muted"];
    const status=make("span",statusInfo[0],"customer-order-status "+statusInfo[1]);
-   row.append(info,status);ordersBox.append(row);
+   row.append(info,status);if(orderStatus==="pending"){const cancelButton=make("button","Annuler la commande","secondary customer-order-cancel");cancelButton.type="button";cancelButton.addEventListener("click",()=>void cancelPendingCustomerOrder(order.id,cancelButton));row.append(cancelButton);}ordersBox.append(row);
   });
  }catch(error){
   library.replaceChildren(make("p","La bibliothèque n’a pas pu être chargée : "+error.message,"customer-muted"));
