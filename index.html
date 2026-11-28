@@ -640,8 +640,10 @@ function showPage(){
  const params=new URLSearchParams(location.search);
  const payment=params.get("payment")||params.get("paiement");
  const isProductRoute=requested.startsWith("livre-")||requested.startsWith("pack-");
+ const anchorTarget=document.getElementById(requested);
+ const anchorPage=anchorTarget&&!anchorTarget.classList.contains("page-view")?anchorTarget.closest(".page-view"):null;
  const allowed=["accueil","boutique","panier","compte","administration","auteur-nath","informations-legales","parametres","promotions","confirmation","payment-confirmation","payment-cancel","fiche-produit"];
- let page=isProductRoute?"fiche-produit":(allowed.includes(requested)?requested:(params.get("welcome")==="1"?"confirmation":"accueil"));
+ let page=isProductRoute?"fiche-produit":(anchorPage?anchorPage.id:(allowed.includes(requested)?requested:(params.get("welcome")==="1"?"confirmation":"accueil")));
  if(payment==="success")page="payment-confirmation";
  if(payment==="cancel"){page="payment-cancel";const cancelOrderId=params.get("order_id");if(cancelOrderId)void processCheckoutCancellation(cancelOrderId);}
 
@@ -658,7 +660,10 @@ function showPage(){
   else link.removeAttribute("aria-current");
  });
  document.querySelectorAll("#mobileBottomNav [data-mobile-route]").forEach(link=>{const route=link.dataset.mobileRoute;const active=route===page||(route==="boutique"&&page==="fiche-produit");link.classList.toggle("active",active);if(active)link.setAttribute("aria-current","page");else link.removeAttribute("aria-current");});
- window.scrollTo({top:0,behavior:"auto"});
+ if(anchorPage){
+  const top=anchorTarget.getBoundingClientRect().top+window.scrollY-24;
+  window.scrollTo({top,behavior:"smooth"});
+ }else window.scrollTo({top:0,behavior:"auto"});
  if(isProductRoute)renderProductPage(requested);if(page==="compte"&&window.renderFavoritesPage)window.renderFavoritesPage();
 }
 window.addEventListener("hashchange",showPage);
