@@ -915,17 +915,41 @@ async function loadCustomerLibrary(session){
    if(librarySearch)librarySearch.oninput=applyLibrarySearch;applyLibrarySearch();
   }
   ordersBox.replaceChildren();
-  if(!result.orders?.length){ordersBox.append(make("p","Aucune commande enregistrée pour le moment.","customer-muted"));}
-  else result.orders.forEach(order=>{
-   const row=make("div",undefined,"customer-order-row"),info=make("div");
-   const date=order.created_at?new Date(order.created_at).toLocaleDateString("fr-FR"):"Date indisponible";
-   info.append(make("strong","Commande · "+date),make("small",euro(order.total_amount)+" · "+(order.payment_provider||"paiement")));
-   const orderStatus=String(order.status||"pending").toLowerCase();
-   const statusMap={paid:["Payée","customer-order-paid"],pending:["En attente de confirmation","customer-order-pending"],failed:["Paiement échoué","customer-order-failed"],canceled:["Commande annulée","customer-order-muted"],cancelled:["Commande annulée","customer-order-muted"],refunded:["Remboursée","customer-order-muted"]};
-   const statusInfo=statusMap[orderStatus]||["Statut : "+orderStatus.replace(/[_-]/g," "),"customer-order-muted"];
-   const status=make("span",statusInfo[0],"customer-order-status "+statusInfo[1]);
-   row.append(info,status);if(orderStatus==="pending"){const cancelButton=make("button","Annuler la commande","secondary customer-order-cancel");cancelButton.type="button";cancelButton.addEventListener("click",()=>void cancelPendingCustomerOrder(order.id,cancelButton));row.append(cancelButton);}ordersBox.append(row);
-  });
+  const orderTools=make("div",undefined,"customer-order-tools");
+  const orderFilter=make("select",undefined,"customer-order-filter");
+  orderFilter.setAttribute("aria-label","Filtrer mes commandes");
+  [["all","Toutes les commandes"],["paid","Payées"],["pending","En attente"],["canceled","Annulées"],["failed","Échouées"],["refunded","Remboursées"]].forEach(([value,label])=>{const option=document.createElement("option");option.value=value;option.textContent=label;orderFilter.append(option);});
+  const orderSummary=make("span","","customer-order-summary");
+  orderSummary.setAttribute("aria-live","polite");
+  const orderList=make("div",undefined,"customer-order-filtered-list");
+  orderTools.append(orderFilter,orderSummary);ordersBox.append(orderTools,orderList);
+  const allOrders=result.orders||[];
+  function renderCustomerOrders(){
+   const selected=orderFilter.value;
+   const filtered=allOrders.filter(order=>{
+    const status=String(order.status||"pending").toLowerCase();
+    if(selected==="all")return true;
+    if(selected==="canceled")return status==="canceled"||status==="cancelled";
+    return status===selected;
+   });
+   orderSummary.textContent=filtered.length+" / "+allOrders.length+" commande"+(allOrders.length>1?"s":"");
+   orderList.replaceChildren();
+   if(!filtered.length){orderList.append(make("p",selected==="all"?"Aucune commande enregistrée pour le moment.":"Aucune commande dans cette catégorie.","customer-muted"));return;}
+   filtered.forEach(order=>{
+    const row=make("div",undefined,"customer-order-row"),info=make("div");
+    const date=order.created_at?new Date(order.created_at).toLocaleDateString("fr-FR"):"Date indisponible";
+    info.append(make("strong","Commande · "+date),make("small",euro(order.total_amount)+" · "+(order.payment_provider||"paiement")));
+    const orderStatus=String(order.status||"pending").toLowerCase();
+    const statusMap={paid:["Payée","customer-order-paid"],pending:["En attente de confirmation","customer-order-pending"],failed:["Paiement échoué","customer-order-failed"],canceled:["Commande annulée","customer-order-muted"],cancelled:["Commande annulée","customer-order-muted"],refunded:["Remboursée","customer-order-muted"]};
+    const statusInfo=statusMap[orderStatus]||["Statut : "+orderStatus.replace(/[_-]/g," "),"customer-order-muted"];
+    const status=make("span",statusInfo[0],"customer-order-status "+statusInfo[1]);
+    row.append(info,status);
+    if(orderStatus==="pending"){const cancelButton=make("button","Annuler la commande","secondary customer-order-cancel");cancelButton.type="button";cancelButton.addEventListener("click",()=>void cancelPendingCustomerOrder(order.id,cancelButton));row.append(cancelButton);}
+    orderList.append(row);
+   });
+  }
+  orderFilter.addEventListener("change",renderCustomerOrders);
+  renderCustomerOrders();
  }catch(error){
   library.replaceChildren(make("p","La bibliothèque n’a pas pu être chargée : "+error.message,"customer-muted"));
   ordersBox.replaceChildren(make("p","Impossible de charger l’historique des commandes.","customer-muted"));
@@ -1320,6 +1344,7 @@ body.nath-dark .customer-profile-card,body.nath-dark .customer-settings-card,bod
 #customerProfileSection{background:#fff}
 #customerLibrarySection,#customerOrdersSection,#customerFavoritesSection{box-shadow:0 6px 20px #263b3508}
 .customer-orders-card .customer-order-list{display:grid;gap:10px;margin-top:16px}
+.customer-order-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0}.customer-order-filter{max-width:260px;background:#fff}.customer-order-summary{font-size:12px;color:#77736b;font-weight:650}.customer-order-filtered-list{display:grid;gap:10px}
 .customer-order-row{padding:14px 15px;border:1px solid #e9e2d7;border-radius:12px;background:#fff;gap:12px}
 .customer-order-row>div:first-child{display:grid;gap:5px}
 .customer-order-row>div:first-child strong{font-size:14px;color:#263b35}
