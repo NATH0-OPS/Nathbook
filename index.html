@@ -936,14 +936,16 @@ async function loadCustomerLibrary(session){
     const isPaid=status==="paid";
     if(selected==="all")return true;
     return selected==="paid"?isPaid:!isPaid;
-   });
+   }).sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
    orderSummary.textContent=filtered.length+" / "+allOrders.length+" commande"+(allOrders.length>1?"s":"");
    orderList.replaceChildren();
    if(!filtered.length){orderList.append(make("p",selected==="all"?"Aucune commande enregistrée pour le moment.":"Aucune commande dans cette catégorie.","customer-muted"));return;}
    filtered.forEach(order=>{
     const row=make("div",undefined,"customer-order-row"),info=make("div");
     const date=order.created_at?new Date(order.created_at).toLocaleDateString("fr-FR"):"Date indisponible";
+    const reference=order.id?"Référence · "+String(order.id).slice(-8).toUpperCase():"";
     info.append(make("strong","Commande · "+date),make("small",euro(order.total_amount)+" · "+(order.payment_provider||"paiement")));
+    if(reference)info.append(make("small",reference));
     const orderStatus=String(order.status||"").toLowerCase();
     const isPaid=orderStatus==="paid";
     const status=make("span",isPaid?"Payée":"Annulée","customer-order-status "+(isPaid?"customer-order-paid":"customer-order-muted"));
