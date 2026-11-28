@@ -918,7 +918,7 @@ async function loadCustomerLibrary(session){
   const orderTools=make("div",undefined,"customer-order-tools");
   const orderFilter=make("select",undefined,"customer-order-filter");
   orderFilter.setAttribute("aria-label","Filtrer mes commandes");
-  [["all","Toutes les commandes"],["paid","Payées"],["pending","En attente"],["canceled","Annulées"],["failed","Échouées"],["refunded","Remboursées"]].forEach(([value,label])=>{const option=document.createElement("option");option.value=value;option.textContent=label;orderFilter.append(option);});
+  [["all","Toutes les commandes"],["paid","Payées"],["canceled","Annulées"]].forEach(([value,label])=>{const option=document.createElement("option");option.value=value;option.textContent=label;orderFilter.append(option);});
   const orderSummary=make("span","","customer-order-summary");
   orderSummary.setAttribute("aria-live","polite");
   const orderList=make("div",undefined,"customer-order-filtered-list");
@@ -927,10 +927,10 @@ async function loadCustomerLibrary(session){
   function renderCustomerOrders(){
    const selected=orderFilter.value;
    const filtered=allOrders.filter(order=>{
-    const status=String(order.status||"pending").toLowerCase();
+    const status=String(order.status||"").toLowerCase();
+    const isPaid=status==="paid";
     if(selected==="all")return true;
-    if(selected==="canceled")return status==="canceled"||status==="cancelled";
-    return status===selected;
+    return selected==="paid"?isPaid:!isPaid;
    });
    orderSummary.textContent=filtered.length+" / "+allOrders.length+" commande"+(allOrders.length>1?"s":"");
    orderList.replaceChildren();
@@ -939,12 +939,10 @@ async function loadCustomerLibrary(session){
     const row=make("div",undefined,"customer-order-row"),info=make("div");
     const date=order.created_at?new Date(order.created_at).toLocaleDateString("fr-FR"):"Date indisponible";
     info.append(make("strong","Commande · "+date),make("small",euro(order.total_amount)+" · "+(order.payment_provider||"paiement")));
-    const orderStatus=String(order.status||"pending").toLowerCase();
-    const statusMap={paid:["Payée","customer-order-paid"],pending:["En attente de confirmation","customer-order-pending"],failed:["Paiement échoué","customer-order-failed"],canceled:["Commande annulée","customer-order-muted"],cancelled:["Commande annulée","customer-order-muted"],refunded:["Remboursée","customer-order-muted"]};
-    const statusInfo=statusMap[orderStatus]||["Statut : "+orderStatus.replace(/[_-]/g," "),"customer-order-muted"];
-    const status=make("span",statusInfo[0],"customer-order-status "+statusInfo[1]);
+    const orderStatus=String(order.status||"").toLowerCase();
+    const isPaid=orderStatus==="paid";
+    const status=make("span",isPaid?"Payée":"Annulée","customer-order-status "+(isPaid?"customer-order-paid":"customer-order-muted"));
     row.append(info,status);
-    if(orderStatus==="pending"){const cancelButton=make("button","Annuler la commande","secondary customer-order-cancel");cancelButton.type="button";cancelButton.addEventListener("click",()=>void cancelPendingCustomerOrder(order.id,cancelButton));row.append(cancelButton);}
     orderList.append(row);
    });
   }
