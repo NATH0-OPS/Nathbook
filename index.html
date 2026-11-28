@@ -968,7 +968,7 @@ async function loadCustomerReviews(session){
  const root=$("customerReviews");if(!root)return;
  root.replaceChildren(make("p","Chargement de tes avis…","customer-muted"));
  try{
-  const {data,error}=await client.from("reviews").select("id,ebook_id,pack_id,rating,body,status,created_at").eq("user_id",session.user.id).order("created_at",{ascending:false});
+  const {data,error}=await client.from("reviews").select("id,ebook_id,pack_id,rating,body,status,rejection_reason,created_at").eq("user_id",session.user.id).order("created_at",{ascending:false});
   if(error)throw error;
   const reviews=data||[];
   if(!reviews.length){root.append(make("p","Tu n’as pas encore envoyé d’avis. Après avoir acheté un ebook ou un pack, tu pourras partager ton expérience depuis sa fiche.","customer-muted"));return;}
@@ -988,6 +988,7 @@ async function loadCustomerReviews(session){
    head.append(info,badge);card.append(head);
    card.append(make("div","★".repeat(Number(review.rating))+"☆".repeat(5-Number(review.rating)),"customer-review-stars"));
    if(review.body)card.append(make("p",review.body,"customer-review-body"));
+   if(String(review.status||"").toLowerCase()==="rejected"&&review.rejection_reason)card.append(make("p","Motif du refus : "+review.rejection_reason,"customer-review-reason"));
    list.append(card);
   });
   root.append(list);
@@ -1124,15 +1125,22 @@ async function loadAdminReviews(){
   const actions=make("div",undefined,"admin-book-actions admin-review-actions");
   const approve=make("button","Publier","admin-review-approve");approve.type="button";
   const reject=make("button","Refuser","danger");reject.type="button";
-  const moderate=async(status,button)=>{
+  const moderate=async(status,button,rejectionReason=null)=>{
    approve.disabled=true;reject.disabled=true;
-   const {data:updated,error:updateError}=await client.from("reviews").update({status}).eq("id",review.id).eq("status","pending").select("id");
+   const updatePayload=status==="rejected"?{status,rejection_reason:rejectionReason}:{status,rejection_reason:null};
+   const {data:updated,error:updateError}=await client.from("reviews").update(updatePayload).eq("id",review.id).eq("status","pending").select("id");
    if(updateError||!updated?.length){approve.disabled=false;reject.disabled=false;showStatus(message,"La modification n’a pas été enregistrée. "+(updateError?.message||"L’avis a peut-être déjà été traité."),"err");return;}
-   showStatus(message,status==="approved"?"Avis publié sur la boutique.":"Avis refusé et gardé hors de la boutique.","ok");
+   showStatus(message,status==="approved"?"Avis publié sur la boutique.":"Avis refusé avec son motif.","ok");
    await loadAdminReviews();
   };
   approve.addEventListener("click",()=>moderate("approved",approve));
-  reject.addEventListener("click",()=>moderate("rejected",reject));
+  reject.addEventListener("click",()=>{
+   const reason=window.prompt("Explique brièvement pourquoi cet avis est refusé. Ce motif sera visible par son auteur :");
+   if(reason===null)return;
+   const trimmed=reason.trim();
+   if(!trimmed){showStatus(message,"Ajoute un motif pour pouvoir refuser cet avis.","err");return;}
+   moderate("rejected",reject,trimmed.slice(0,1000));
+  });
   actions.append(approve,reject);card.append(info,actions);box.append(card);
  });
 }
@@ -1408,6 +1416,7 @@ body.nath-dark .customer-profile-card,body.nath-dark .customer-settings-card,bod
 .customer-review-stars{margin-top:10px;color:#bd8957;font-size:16px;letter-spacing:1px}
 .customer-review-body{margin:8px 0 0;color:#55594f;font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:700px){.customer-account-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.customer-review-reason{margin:10px 0 0;padding:10px 12px;border-left:3px solid #bd8957;background:#f8f2e8;color:#654c31;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
 </style>
 <script>
 (function(){
